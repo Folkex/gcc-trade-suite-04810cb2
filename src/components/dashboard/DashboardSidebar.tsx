@@ -14,10 +14,14 @@ import {
   Shield,
   Wallet,
   Sparkles,
+  Users,
+  Trophy,
+  Gift,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
+import InstallAppButton from "@/components/mobile/InstallAppButton";
 
 interface NavItem {
   title: string;
@@ -28,10 +32,12 @@ interface NavItem {
 const navItems: NavItem[] = [
   { title: "Dashboard", icon: LayoutDashboard, path: "/dashboard" },
   { title: "Market Sniper", icon: Crosshair, path: "/market-sniper" },
-  { title: "Copy Trading", icon: Wallet, path: "/copy-trading" },
+  { title: "Copy Trading", icon: Users, path: "/copy-trading" },
   { title: "Gem Finder", icon: Sparkles, path: "/gem-finder" },
   { title: "Whale Watch", icon: Wallet, path: "/whale-watch" },
   { title: "Scanner", icon: Shield, path: "/scanner" },
+  { title: "Leaderboard", icon: Trophy, path: "/leaderboard" },
+  { title: "Referrals", icon: Gift, path: "/referrals" },
   { title: "Projects", icon: FolderOpen, path: "/projects" },
   { title: "Analytics", icon: BarChart3, path: "/dashboard/analytics" },
   { title: "Notifications", icon: Bell, path: "/notifications" },
@@ -140,6 +146,11 @@ const DashboardSidebar = ({ collapsed, onToggle }: DashboardSidebarProps) => {
           );
         })}
       </nav>
+
+      {/* Install App Button (Mobile Only) */}
+      <div className="px-3 pb-2">
+        <InstallAppButton collapsed={collapsed} />
+      </div>
 
       {/* Logout Button */}
       <div className="p-3 border-t border-border/50">
