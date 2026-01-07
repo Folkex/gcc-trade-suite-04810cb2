@@ -1,7 +1,9 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Menu, X, Globe } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface HeaderProps {
   lang: "en" | "ar";
@@ -29,6 +31,7 @@ const translations = {
 
 const Header = ({ lang, onLangChange }: HeaderProps) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const { user } = useAuth();
   const t = translations[lang];
   const isRTL = lang === "ar";
 
@@ -74,10 +77,20 @@ const Header = ({ lang, onLangChange }: HeaderProps) => {
             >
               <Globe className="h-5 w-5" />
             </Button>
-            <Button variant="ghost">{t.login}</Button>
-            <Button className="bg-gradient-to-r from-primary to-accent hover:opacity-90 transition-opacity">
-              {t.getStarted}
-            </Button>
+            {user ? (
+              <Button asChild className="bg-gradient-to-r from-primary to-accent hover:opacity-90 transition-opacity">
+                <Link to="/dashboard">Dashboard</Link>
+              </Button>
+            ) : (
+              <>
+                <Button variant="ghost" asChild>
+                  <Link to="/login">{t.login}</Link>
+                </Button>
+                <Button asChild className="bg-gradient-to-r from-primary to-accent hover:opacity-90 transition-opacity">
+                  <Link to="/signup">{t.getStarted}</Link>
+                </Button>
+              </>
+            )}
           </div>
 
           {/* Mobile Menu Button */}
@@ -120,8 +133,20 @@ const Header = ({ lang, onLangChange }: HeaderProps) => {
                   <Globe className="h-4 w-4" />
                   {lang === "en" ? "العربية" : "English"}
                 </Button>
-                <Button variant="outline">{t.login}</Button>
-                <Button className="bg-gradient-to-r from-primary to-accent">{t.getStarted}</Button>
+                {user ? (
+                  <Button asChild className="bg-gradient-to-r from-primary to-accent">
+                    <Link to="/dashboard">Dashboard</Link>
+                  </Button>
+                ) : (
+                  <>
+                    <Button variant="outline" asChild>
+                      <Link to="/login">{t.login}</Link>
+                    </Button>
+                    <Button asChild className="bg-gradient-to-r from-primary to-accent">
+                      <Link to="/signup">{t.getStarted}</Link>
+                    </Button>
+                  </>
+                )}
               </div>
             </nav>
           </motion.div>

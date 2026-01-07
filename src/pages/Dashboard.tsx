@@ -1,9 +1,13 @@
-import { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import { TrendingUp, LogOut, User } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { useAuth } from '@/contexts/AuthContext';
+import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { motion } from "framer-motion";
+import { Wallet, TrendingUp, BarChart3, PieChart } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
+import DashboardHeader from "@/components/dashboard/DashboardHeader";
+import PortfolioCard from "@/components/dashboard/PortfolioCard";
+import MarketOverview from "@/components/dashboard/MarketOverview";
+import QuickActions from "@/components/dashboard/QuickActions";
+import RecentActivity from "@/components/dashboard/RecentActivity";
 
 const Dashboard = () => {
   const { user, loading, signOut } = useAuth();
@@ -11,19 +15,19 @@ const Dashboard = () => {
 
   useEffect(() => {
     if (!loading && !user) {
-      navigate('/login');
+      navigate("/login");
     }
   }, [user, loading, navigate]);
 
   const handleSignOut = async () => {
     await signOut();
-    navigate('/');
+    navigate("/");
   };
 
   if (loading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary" />
       </div>
     );
   }
@@ -34,74 +38,69 @@ const Dashboard = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="container mx-auto px-4 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
-              <TrendingUp className="w-5 h-5 text-primary-foreground" />
-            </div>
-            <span className="text-xl font-bold text-foreground">TradePro</span>
-          </div>
-          
-          <div className="flex items-center gap-4">
-            <div className="flex items-center gap-2 text-muted-foreground">
-              <User className="w-5 h-5" />
-              <span className="text-sm">{user.email}</span>
-            </div>
-            <Button variant="outline" size="sm" onClick={handleSignOut}>
-              <LogOut className="w-4 h-4 mr-2" />
-              Sign Out
-            </Button>
-          </div>
-        </div>
-      </header>
+      <DashboardHeader onSignOut={handleSignOut} />
 
-      {/* Main Content */}
-      <main className="container mx-auto px-4 py-8">
+      <main className="container mx-auto px-4 py-6">
+        {/* Welcome Section */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
+          className="mb-8"
         >
-          <h1 className="text-3xl font-bold text-foreground mb-2">
-            Welcome back! 👋
+          <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-1">
+            Welcome back, {user.email?.split("@")[0]} 👋
           </h1>
-          <p className="text-muted-foreground mb-8">
-            Your trading dashboard is ready. Start exploring the markets.
+          <p className="text-muted-foreground">
+            Here's what's happening with your portfolio today.
           </p>
-
-          {/* Placeholder for dashboard content */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <div className="bg-card border border-border rounded-xl p-6">
-              <h3 className="font-semibold text-foreground mb-2">Portfolio Value</h3>
-              <p className="text-3xl font-bold text-primary">$0.00</p>
-              <p className="text-sm text-muted-foreground mt-1">Coming soon</p>
-            </div>
-            
-            <div className="bg-card border border-border rounded-xl p-6">
-              <h3 className="font-semibold text-foreground mb-2">Today's P&L</h3>
-              <p className="text-3xl font-bold text-green-500">+$0.00</p>
-              <p className="text-sm text-muted-foreground mt-1">Coming soon</p>
-            </div>
-            
-            <div className="bg-card border border-border rounded-xl p-6">
-              <h3 className="font-semibold text-foreground mb-2">Open Positions</h3>
-              <p className="text-3xl font-bold text-foreground">0</p>
-              <p className="text-sm text-muted-foreground mt-1">Coming soon</p>
-            </div>
-          </div>
-
-          <div className="mt-8 bg-card border border-border rounded-xl p-8 text-center">
-            <h2 className="text-xl font-semibold text-foreground mb-2">
-              🚀 Dashboard Coming Soon
-            </h2>
-            <p className="text-muted-foreground max-w-md mx-auto">
-              We're building an amazing trading experience for you. Real-time charts, 
-              portfolio tracking, and market analysis are on the way.
-            </p>
-          </div>
         </motion.div>
+
+        {/* Stats Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+          <PortfolioCard
+            title="Portfolio Value"
+            value="$45,231.89"
+            change="+12.5% from last month"
+            changeType="positive"
+            icon={<Wallet className="h-4 w-4" />}
+            delay={0}
+          />
+          <PortfolioCard
+            title="Today's P&L"
+            value="+$1,234.56"
+            change="+2.4% today"
+            changeType="positive"
+            icon={<TrendingUp className="h-4 w-4" />}
+            delay={0.05}
+          />
+          <PortfolioCard
+            title="Open Positions"
+            value="12"
+            change="3 profitable"
+            changeType="neutral"
+            icon={<BarChart3 className="h-4 w-4" />}
+            delay={0.1}
+          />
+          <PortfolioCard
+            title="Win Rate"
+            value="68.5%"
+            change="+5.2% this week"
+            changeType="positive"
+            icon={<PieChart className="h-4 w-4" />}
+            delay={0.15}
+          />
+        </div>
+
+        {/* Main Content Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="lg:col-span-2 space-y-6">
+            <MarketOverview />
+            <RecentActivity />
+          </div>
+          <div className="space-y-6">
+            <QuickActions />
+          </div>
+        </div>
       </main>
     </div>
   );
