@@ -1,14 +1,14 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap');
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* GCC Trading Platform Design System */
+/* Crypto Trading Terminal Design System */
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
+    --background: 220 20% 97%;
     --foreground: 220 20% 10%;
 
     --card: 0 0% 100%;
@@ -17,8 +17,8 @@
     --popover: 0 0% 100%;
     --popover-foreground: 220 20% 10%;
 
-    --primary: 220 90% 56%;
-    --primary-foreground: 0 0% 100%;
+    --primary: 142 76% 45%;
+    --primary-foreground: 0 0% 0%;
 
     --secondary: 220 14% 96%;
     --secondary-foreground: 220 20% 10%;
@@ -26,91 +26,93 @@
     --muted: 220 14% 96%;
     --muted-foreground: 220 10% 46%;
 
-    --accent: 45 93% 58%;
-    --accent-foreground: 220 20% 10%;
+    --accent: 142 76% 45%;
+    --accent-foreground: 0 0% 0%;
 
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
 
-    --success: 142 76% 36%;
-    --success-foreground: 0 0% 100%;
+    --success: 142 76% 45%;
+    --success-foreground: 0 0% 0%;
 
     --warning: 38 92% 50%;
     --warning-foreground: 0 0% 100%;
 
     --border: 220 13% 91%;
     --input: 220 13% 91%;
-    --ring: 220 90% 56%;
+    --ring: 142 76% 45%;
 
-    --radius: 0.75rem;
+    --radius: 0.5rem;
 
     /* Trading specific colors */
-    --chart-up: 142 76% 36%;
+    --chart-up: 142 76% 45%;
     --chart-down: 0 84% 60%;
-    --gold: 45 93% 58%;
-    --gold-dark: 45 93% 47%;
+    --neon-green: 142 76% 55%;
+    --neon-red: 0 84% 60%;
+    --terminal-bg: 220 20% 6%;
 
     /* Sidebar */
     --sidebar-background: 220 20% 98%;
     --sidebar-foreground: 220 10% 30%;
-    --sidebar-primary: 220 90% 56%;
-    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-primary: 142 76% 45%;
+    --sidebar-primary-foreground: 0 0% 0%;
     --sidebar-accent: 220 14% 94%;
     --sidebar-accent-foreground: 220 20% 10%;
     --sidebar-border: 220 13% 91%;
-    --sidebar-ring: 220 90% 56%;
+    --sidebar-ring: 142 76% 45%;
   }
 
   .dark {
-    --background: 222 47% 6%;
-    --foreground: 210 40% 98%;
+    --background: 220 25% 4%;
+    --foreground: 0 0% 95%;
 
-    --card: 222 47% 8%;
-    --card-foreground: 210 40% 98%;
+    --card: 220 25% 6%;
+    --card-foreground: 0 0% 95%;
 
-    --popover: 222 47% 8%;
-    --popover-foreground: 210 40% 98%;
+    --popover: 220 25% 6%;
+    --popover-foreground: 0 0% 95%;
 
-    --primary: 220 90% 56%;
-    --primary-foreground: 0 0% 100%;
+    --primary: 142 76% 50%;
+    --primary-foreground: 0 0% 0%;
 
-    --secondary: 222 47% 14%;
-    --secondary-foreground: 210 40% 98%;
+    --secondary: 220 25% 10%;
+    --secondary-foreground: 0 0% 95%;
 
-    --muted: 222 47% 14%;
-    --muted-foreground: 215 20% 65%;
+    --muted: 220 25% 10%;
+    --muted-foreground: 220 10% 55%;
 
-    --accent: 45 93% 58%;
-    --accent-foreground: 220 20% 10%;
+    --accent: 142 76% 50%;
+    --accent-foreground: 0 0% 0%;
 
-    --destructive: 0 62% 50%;
+    --destructive: 0 72% 55%;
     --destructive-foreground: 0 0% 100%;
 
-    --success: 142 76% 42%;
-    --success-foreground: 0 0% 100%;
+    --success: 142 76% 50%;
+    --success-foreground: 0 0% 0%;
 
     --warning: 38 92% 50%;
-    --warning-foreground: 0 0% 100%;
+    --warning-foreground: 0 0% 0%;
 
-    --border: 222 47% 14%;
-    --input: 222 47% 14%;
-    --ring: 220 90% 56%;
+    --border: 220 25% 12%;
+    --input: 220 25% 12%;
+    --ring: 142 76% 50%;
 
     /* Trading specific colors */
-    --chart-up: 142 76% 42%;
-    --chart-down: 0 62% 50%;
-    --gold: 45 93% 58%;
-    --gold-dark: 45 93% 47%;
+    --chart-up: 142 76% 50%;
+    --chart-down: 0 72% 55%;
+    --neon-green: 142 76% 55%;
+    --neon-red: 0 72% 55%;
+    --terminal-bg: 220 25% 4%;
 
     /* Sidebar */
-    --sidebar-background: 222 47% 8%;
-    --sidebar-foreground: 210 40% 98%;
-    --sidebar-primary: 220 90% 56%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 222 47% 14%;
-    --sidebar-accent-foreground: 210 40% 98%;
-    --sidebar-border: 222 47% 14%;
-    --sidebar-ring: 220 90% 56%;
+    --sidebar-background: 220 25% 5%;
+    --sidebar-foreground: 0 0% 95%;
+    --sidebar-primary: 142 76% 50%;
+    --sidebar-primary-foreground: 0 0% 0%;
+    --sidebar-accent: 220 25% 10%;
+    --sidebar-accent-foreground: 0 0% 95%;
+    --sidebar-border: 220 25% 12%;
+    --sidebar-ring: 142 76% 50%;
   }
 }
 
@@ -128,9 +130,9 @@
     font-feature-settings: "rlig" 1, "calt" 1;
   }
 
-  /* RTL Support */
-  [dir="rtl"] {
-    font-family: 'Plus Jakarta Sans', 'Segoe UI', Tahoma, sans-serif;
+  /* Force dark mode for trading terminal */
+  html {
+    @apply dark;
   }
 }
 
@@ -140,10 +142,59 @@
   }
 
   .glass {
-    @apply bg-white/80 dark:bg-card/80 backdrop-blur-xl;
+    @apply bg-card/90 backdrop-blur-xl;
   }
 
   .glass-border {
-    @apply border border-white/20 dark:border-white/10;
+    @apply border border-border/50;
+  }
+
+  .terminal-card {
+    @apply bg-card border border-border/50 rounded-lg;
+  }
+
+  .neon-glow {
+    box-shadow: 0 0 20px hsl(var(--neon-green) / 0.3);
+  }
+
+  .neon-glow-red {
+    box-shadow: 0 0 20px hsl(var(--neon-red) / 0.3);
+  }
+
+  .terminal-text {
+    @apply font-mono tracking-tight;
+  }
+
+  .ticker-scroll {
+    animation: ticker 30s linear infinite;
+  }
+
+  @keyframes ticker {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+  }
+
+  .pulse-dot {
+    animation: pulse-dot 2s ease-in-out infinite;
+  }
+
+  @keyframes pulse-dot {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+  }
+
+  .glow-border {
+    animation: glow-pulse 2s ease-in-out infinite;
+  }
+
+  @keyframes glow-pulse {
+    0%, 100% { 
+      box-shadow: 0 0 5px hsl(var(--neon-green) / 0.3), 
+                  0 0 10px hsl(var(--neon-green) / 0.2);
+    }
+    50% { 
+      box-shadow: 0 0 10px hsl(var(--neon-green) / 0.5), 
+                  0 0 20px hsl(var(--neon-green) / 0.3);
+    }
   }
 }

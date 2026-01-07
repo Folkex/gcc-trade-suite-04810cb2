@@ -7,10 +7,13 @@ import {
   LogOut,
   ChevronLeft,
   ChevronRight,
-  TrendingUp,
+  Crosshair,
   FolderOpen,
   Bell,
   HelpCircle,
+  Shield,
+  Wallet,
+  Sparkles,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -23,13 +26,15 @@ interface NavItem {
 }
 
 const navItems: NavItem[] = [
-  { title: "Overview", icon: LayoutDashboard, path: "/dashboard" },
-  { title: "Market Sniper", icon: TrendingUp, path: "/market-sniper" },
+  { title: "Dashboard", icon: LayoutDashboard, path: "/dashboard" },
+  { title: "Market Sniper", icon: Crosshair, path: "/market-sniper" },
+  { title: "Gem Finder", icon: Sparkles, path: "/gem-finder" },
+  { title: "Whale Watch", icon: Wallet, path: "/whale-watch" },
+  { title: "Scanner", icon: Shield, path: "/scanner" },
   { title: "Projects", icon: FolderOpen, path: "/projects" },
   { title: "Analytics", icon: BarChart3, path: "/dashboard/analytics" },
   { title: "Notifications", icon: Bell, path: "/notifications" },
   { title: "Settings", icon: Settings, path: "/dashboard/settings" },
-  { title: "Help & Support", icon: HelpCircle, path: "/help" },
 ];
 
 interface DashboardSidebarProps {
@@ -71,17 +76,17 @@ const DashboardSidebar = ({ collapsed, onToggle }: DashboardSidebarProps) => {
               exit={{ opacity: 0 }}
               className="flex items-center gap-2"
             >
-              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-accent flex items-center justify-center">
-                <TrendingUp className="w-4 h-4 text-primary-foreground" />
+              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-primary/50 flex items-center justify-center">
+                <Crosshair className="w-4 h-4 text-primary-foreground" />
               </div>
-              <span className="font-bold text-lg text-foreground">TradePro</span>
+              <span className="font-bold text-lg font-mono text-foreground">SNIPER</span>
             </motion.div>
           )}
         </AnimatePresence>
         
         {collapsed && (
-          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-accent flex items-center justify-center mx-auto">
-            <TrendingUp className="w-4 h-4 text-primary-foreground" />
+          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-primary/50 flex items-center justify-center mx-auto">
+            <Crosshair className="w-4 h-4 text-primary-foreground" />
           </div>
         )}
       </div>

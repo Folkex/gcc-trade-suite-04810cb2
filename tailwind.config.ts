@@ -14,8 +14,9 @@ export default {
     },
     extend: {
       fontFamily: {
-        sans: ["Inter", "Plus Jakarta Sans", "system-ui", "sans-serif"],
-        display: ["Plus Jakarta Sans", "Inter", "system-ui", "sans-serif"],
+        sans: ["Inter", "system-ui", "sans-serif"],
+        mono: ["JetBrains Mono", "Menlo", "Monaco", "monospace"],
+        display: ["Inter", "system-ui", "sans-serif"],
       },
       colors: {
         border: "hsl(var(--border))",
@@ -62,6 +63,10 @@ export default {
         chart: {
           up: "hsl(var(--chart-up))",
           down: "hsl(var(--chart-down))",
+        },
+        neon: {
+          green: "hsl(var(--neon-green))",
+          red: "hsl(var(--neon-red))",
         },
         gold: {
           DEFAULT: "hsl(var(--gold))",

@@ -20,6 +20,8 @@ import NotFound from "./pages/NotFound";
 import MarketSniper from "./pages/MarketSniper";
 import GemFinder from "./pages/GemFinder";
 import TokenAnalyzer from "./pages/TokenAnalyzer";
+import Scanner from "./pages/Scanner";
+import WhaleWatch from "./pages/WhaleWatch";
 
 const queryClient = new QueryClient();
 
@@ -47,6 +49,8 @@ function App() {
             <Route path="/market-sniper" element={<MarketSniper />} />
             <Route path="/gem-finder" element={<GemFinder />} />
             <Route path="/token/:id" element={<TokenAnalyzer />} />
+            <Route path="/scanner" element={<Scanner />} />
+            <Route path="/whale-watch" element={<WhaleWatch />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                 <Route path="*" element={<NotFound />} />
               </Routes>
