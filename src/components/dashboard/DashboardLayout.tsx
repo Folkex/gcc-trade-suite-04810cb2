@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import DashboardSidebar from "./DashboardSidebar";
 import DashboardTopbar from "./DashboardTopbar";
+import MobileBottomNav from "@/components/mobile/MobileBottomNav";
 import { cn } from "@/lib/utils";
 
 interface DashboardLayoutProps {
@@ -81,10 +82,13 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
       >
         <DashboardTopbar onMenuClick={() => setMobileMenuOpen(true)} />
         
-        <main className="p-4 md:p-6 lg:p-8">
+        <main className="p-4 md:p-6 lg:p-8 pb-24 lg:pb-8">
           {children}
         </main>
       </motion.div>
+
+      {/* Mobile Bottom Navigation */}
+      <MobileBottomNav />
     </div>
   );
 };

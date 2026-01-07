@@ -24,6 +24,8 @@ import Scanner from "./pages/Scanner";
 import WhaleWatch from "./pages/WhaleWatch";
 import CopyTrading from "./pages/CopyTrading";
 import Wallet from "./pages/Wallet";
+import Referrals from "./pages/Referrals";
+import Leaderboard from "./pages/Leaderboard";
 
 const queryClient = new QueryClient();
 
@@ -55,6 +57,8 @@ function App() {
             <Route path="/whale-watch" element={<WhaleWatch />} />
             <Route path="/copy-trading" element={<CopyTrading />} />
             <Route path="/wallet" element={<Wallet />} />
+            <Route path="/referrals" element={<Referrals />} />
+            <Route path="/leaderboard" element={<Leaderboard />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                 <Route path="*" element={<NotFound />} />
               </Routes>
