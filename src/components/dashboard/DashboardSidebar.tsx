@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -9,6 +8,9 @@ import {
   ChevronLeft,
   ChevronRight,
   TrendingUp,
+  FolderOpen,
+  Bell,
+  HelpCircle,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -22,8 +24,11 @@ interface NavItem {
 
 const navItems: NavItem[] = [
   { title: "Overview", icon: LayoutDashboard, path: "/dashboard" },
+  { title: "Projects", icon: FolderOpen, path: "/projects" },
   { title: "Analytics", icon: BarChart3, path: "/dashboard/analytics" },
+  { title: "Notifications", icon: Bell, path: "/notifications" },
   { title: "Settings", icon: Settings, path: "/dashboard/settings" },
+  { title: "Help & Support", icon: HelpCircle, path: "/help" },
 ];
 
 interface DashboardSidebarProps {
