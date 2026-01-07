@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { User, Shield, CreditCard, Bell, Camera, Check } from "lucide-react";
+import { User, Shield, CreditCard, Bell, Camera, Check, Users, History } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -11,6 +11,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
+import TeamSettings from "@/components/settings/TeamSettings";
+import AuditLog from "@/components/settings/AuditLog";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 
@@ -109,6 +111,14 @@ const DashboardSettings = () => {
             <TabsTrigger value="notifications" className="gap-2 data-[state=active]:bg-primary/10">
               <Bell className="h-4 w-4" />
               Notifications
+            </TabsTrigger>
+            <TabsTrigger value="team" className="gap-2 data-[state=active]:bg-primary/10">
+              <Users className="h-4 w-4" />
+              Team
+            </TabsTrigger>
+            <TabsTrigger value="audit" className="gap-2 data-[state=active]:bg-primary/10">
+              <History className="h-4 w-4" />
+              Audit Log
             </TabsTrigger>
           </TabsList>
 
@@ -425,6 +435,16 @@ const DashboardSettings = () => {
                 </Button>
               </CardContent>
             </Card>
+          </TabsContent>
+
+          {/* Team Tab */}
+          <TabsContent value="team">
+            <TeamSettings />
+          </TabsContent>
+
+          {/* Audit Log Tab */}
+          <TabsContent value="audit">
+            <AuditLog />
           </TabsContent>
         </Tabs>
       </motion.div>
