@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -7,21 +8,32 @@ import {
   LogOut,
   ChevronLeft,
   ChevronRight,
+  ChevronDown,
   Crosshair,
   FolderOpen,
-  Bell,
-  HelpCircle,
   Shield,
   Wallet,
   Sparkles,
   Users,
   Trophy,
   Gift,
+  Target,
+  Waves,
+  Copy,
+  ArrowRightLeft,
+  User,
+  Lock,
+  HelpCircle,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
 import InstallAppButton from "@/components/mobile/InstallAppButton";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
 
 interface NavItem {
   title: string;
@@ -29,19 +41,58 @@ interface NavItem {
   path: string;
 }
 
-const navItems: NavItem[] = [
-  { title: "Dashboard", icon: LayoutDashboard, path: "/dashboard" },
-  { title: "Market Sniper", icon: Crosshair, path: "/market-sniper" },
-  { title: "Copy Trading", icon: Users, path: "/copy-trading" },
-  { title: "Gem Finder", icon: Sparkles, path: "/gem-finder" },
-  { title: "Whale Watch", icon: Wallet, path: "/whale-watch" },
-  { title: "Scanner", icon: Shield, path: "/scanner" },
-  { title: "Leaderboard", icon: Trophy, path: "/leaderboard" },
-  { title: "Referrals", icon: Gift, path: "/referrals" },
-  { title: "Projects", icon: FolderOpen, path: "/projects" },
-  { title: "Analytics", icon: BarChart3, path: "/dashboard/analytics" },
-  { title: "Notifications", icon: Bell, path: "/notifications" },
-  { title: "Settings", icon: Settings, path: "/dashboard/settings" },
+interface NavSection {
+  title: string;
+  items: NavItem[];
+  defaultOpen?: boolean;
+}
+
+const navSections: NavSection[] = [
+  {
+    title: "CORE",
+    defaultOpen: true,
+    items: [
+      { title: "Overview", icon: LayoutDashboard, path: "/dashboard" },
+      { title: "Projects", icon: FolderOpen, path: "/projects" },
+      { title: "Team", icon: Users, path: "/team" },
+    ],
+  },
+  {
+    title: "TERMINAL",
+    defaultOpen: true,
+    items: [
+      { title: "Sniper Board", icon: Crosshair, path: "/market-sniper" },
+      { title: "Scanner", icon: Shield, path: "/scanner" },
+      { title: "Whale Watch", icon: Waves, path: "/whale-watch" },
+      { title: "Copy Trader", icon: Copy, path: "/copy-trading" },
+      { title: "Gem Finder", icon: Sparkles, path: "/gem-finder" },
+    ],
+  },
+  {
+    title: "FINANCE",
+    defaultOpen: false,
+    items: [
+      { title: "My Wallet", icon: Wallet, path: "/wallet" },
+      { title: "Transactions", icon: ArrowRightLeft, path: "/transactions" },
+    ],
+  },
+  {
+    title: "GROWTH",
+    defaultOpen: false,
+    items: [
+      { title: "Referrals", icon: Gift, path: "/referrals" },
+      { title: "Leaderboard", icon: Trophy, path: "/leaderboard" },
+    ],
+  },
+  {
+    title: "SETTINGS",
+    defaultOpen: false,
+    items: [
+      { title: "Profile", icon: User, path: "/settings/profile" },
+      { title: "Security", icon: Lock, path: "/settings/security" },
+      { title: "Support", icon: HelpCircle, path: "/support" },
+    ],
+  },
 ];
 
 interface DashboardSidebarProps {
@@ -53,6 +104,14 @@ const DashboardSidebar = ({ collapsed, onToggle }: DashboardSidebarProps) => {
   const location = useLocation();
   const navigate = useNavigate();
   const { signOut } = useAuth();
+  
+  // Track open sections
+  const [openSections, setOpenSections] = useState<Record<string, boolean>>(
+    navSections.reduce((acc, section) => ({
+      ...acc,
+      [section.title]: section.defaultOpen ?? true,
+    }), {})
+  );
 
   const handleLogout = async () => {
     await signOut();
@@ -64,6 +123,29 @@ const DashboardSidebar = ({ collapsed, onToggle }: DashboardSidebarProps) => {
       return location.pathname === "/dashboard";
     }
     return location.pathname.startsWith(path);
+  };
+
+  const toggleSection = (title: string) => {
+    setOpenSections((prev) => ({
+      ...prev,
+      [title]: !prev[title],
+    }));
+  };
+
+  // Get section color based on title
+  const getSectionColor = (title: string) => {
+    switch (title) {
+      case "TERMINAL":
+        return "text-primary";
+      case "FINANCE":
+        return "text-green-400";
+      case "GROWTH":
+        return "text-amber-400";
+      case "SETTINGS":
+        return "text-muted-foreground";
+      default:
+        return "text-foreground";
+    }
   };
 
   return (
@@ -84,7 +166,7 @@ const DashboardSidebar = ({ collapsed, onToggle }: DashboardSidebarProps) => {
               className="flex items-center gap-2"
             >
               <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-primary/50 flex items-center justify-center">
-                <Crosshair className="w-4 h-4 text-primary-foreground" />
+                <Target className="w-4 h-4 text-primary-foreground" />
               </div>
               <span className="font-bold text-lg font-mono text-foreground">SNIPER</span>
             </motion.div>
@@ -93,7 +175,7 @@ const DashboardSidebar = ({ collapsed, onToggle }: DashboardSidebarProps) => {
         
         {collapsed && (
           <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-primary/50 flex items-center justify-center mx-auto">
-            <Crosshair className="w-4 h-4 text-primary-foreground" />
+            <Target className="w-4 h-4 text-primary-foreground" />
           </div>
         )}
       </div>
@@ -112,39 +194,93 @@ const DashboardSidebar = ({ collapsed, onToggle }: DashboardSidebarProps) => {
         )}
       </Button>
 
-      {/* Navigation */}
-      <nav className="flex-1 py-6 px-3 space-y-1">
-        {navItems.map((item) => {
-          const active = isActive(item.path);
-          return (
-            <Button
-              key={item.path}
-              variant="ghost"
-              onClick={() => navigate(item.path)}
-              className={cn(
-                "w-full justify-start gap-3 h-11 transition-all duration-200",
-                collapsed && "justify-center px-0",
-                active
-                  ? "bg-primary/10 text-primary hover:bg-primary/15 font-medium"
-                  : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
-              )}
-            >
-              <item.icon className={cn("h-5 w-5 shrink-0", active && "text-primary")} />
-              <AnimatePresence mode="wait">
-                {!collapsed && (
-                  <motion.span
-                    initial={{ opacity: 0, width: 0 }}
-                    animate={{ opacity: 1, width: "auto" }}
-                    exit={{ opacity: 0, width: 0 }}
-                    className="truncate"
+      {/* Navigation with Sections */}
+      <nav className="flex-1 py-4 px-3 space-y-2 overflow-y-auto scrollbar-thin">
+        {navSections.map((section) => (
+          <Collapsible
+            key={section.title}
+            open={collapsed ? false : openSections[section.title]}
+            onOpenChange={() => !collapsed && toggleSection(section.title)}
+          >
+            {!collapsed && (
+              <CollapsibleTrigger asChild>
+                <Button
+                  variant="ghost"
+                  className="w-full justify-between h-8 px-2 text-xs font-semibold tracking-wider hover:bg-transparent"
+                >
+                  <span className={getSectionColor(section.title)}>
+                    {section.title}
+                  </span>
+                  <ChevronDown
+                    className={cn(
+                      "h-3 w-3 text-muted-foreground transition-transform",
+                      openSections[section.title] && "rotate-180"
+                    )}
+                  />
+                </Button>
+              </CollapsibleTrigger>
+            )}
+
+            <CollapsibleContent className="space-y-1">
+              {section.items.map((item) => {
+                const active = isActive(item.path);
+                return (
+                  <Button
+                    key={item.path}
+                    variant="ghost"
+                    onClick={() => navigate(item.path)}
+                    className={cn(
+                      "w-full justify-start gap-3 h-10 transition-all duration-200",
+                      collapsed && "justify-center px-0",
+                      active
+                        ? "bg-primary/10 text-primary hover:bg-primary/15 font-medium"
+                        : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+                    )}
                   >
-                    {item.title}
-                  </motion.span>
-                )}
-              </AnimatePresence>
-            </Button>
-          );
-        })}
+                    <item.icon className={cn("h-4 w-4 shrink-0", active && "text-primary")} />
+                    <AnimatePresence mode="wait">
+                      {!collapsed && (
+                        <motion.span
+                          initial={{ opacity: 0, width: 0 }}
+                          animate={{ opacity: 1, width: "auto" }}
+                          exit={{ opacity: 0, width: 0 }}
+                          className="truncate text-sm"
+                        >
+                          {item.title}
+                        </motion.span>
+                      )}
+                    </AnimatePresence>
+                  </Button>
+                );
+              })}
+            </CollapsibleContent>
+
+            {/* Show items directly when collapsed */}
+            {collapsed && (
+              <div className="space-y-1">
+                {section.items.map((item) => {
+                  const active = isActive(item.path);
+                  return (
+                    <Button
+                      key={item.path}
+                      variant="ghost"
+                      onClick={() => navigate(item.path)}
+                      className={cn(
+                        "w-full justify-center px-0 h-10 transition-all duration-200",
+                        active
+                          ? "bg-primary/10 text-primary hover:bg-primary/15"
+                          : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+                      )}
+                      title={item.title}
+                    >
+                      <item.icon className={cn("h-4 w-4 shrink-0", active && "text-primary")} />
+                    </Button>
+                  );
+                })}
+              </div>
+            )}
+          </Collapsible>
+        ))}
       </nav>
 
       {/* Install App Button (Mobile Only) */}
