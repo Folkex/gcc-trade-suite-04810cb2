@@ -4,22 +4,26 @@ import { useSearchParams, useNavigate } from "react-router-dom";
 import {
   TrendingUp,
   TrendingDown,
-  Clock,
   BarChart3,
   ArrowUpDown,
   Settings2,
   Zap,
-  ChevronDown,
   Wallet,
   AlertCircle,
   Check,
   X,
+  Bell,
+  Activity,
+  Target,
+  Percent,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
 import {
   Accordion,
   AccordionContent,
@@ -114,6 +118,13 @@ const TradeTerminal = () => {
   const [timeframe, setTimeframe] = useState("1h");
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   
+  // New advanced features
+  const [stopLoss, setStopLoss] = useState("");
+  const [takeProfit, setTakeProfit] = useState("");
+  const [enableAlerts, setEnableAlerts] = useState(false);
+  const [trailingStop, setTrailingStop] = useState(false);
+  const [antiMev, setAntiMev] = useState(true);
+  
   const receiveAmount = parseFloat(payAmount || "0") / token.price;
   
   const formatPrice = (price: number) => {
@@ -130,7 +141,7 @@ const TradeTerminal = () => {
 
   return (
     <DashboardLayout>
-      <div className="min-h-screen" style={{ background: '#0a0a0a' }}>
+      <div className="min-h-screen">
         {/* Terminal Header */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
@@ -139,15 +150,15 @@ const TradeTerminal = () => {
         >
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <div className="flex items-center gap-4">
-              <div className="h-12 w-12 rounded-lg bg-gradient-to-br from-[#00ff9d] to-emerald-600 flex items-center justify-center">
-                <BarChart3 className="h-6 w-6 text-black" />
+              <div className="h-12 w-12 rounded-lg bg-gradient-to-br from-primary to-primary/50 flex items-center justify-center">
+                <BarChart3 className="h-6 w-6 text-primary-foreground" />
               </div>
               <div>
                 <div className="flex items-center gap-2">
-                  <h1 className="text-2xl font-bold font-mono text-white">
+                  <h1 className="text-2xl font-bold font-mono">
                     {token.symbol}<span className="text-muted-foreground">/SOL</span>
                   </h1>
-                  <Badge variant="outline" className="font-mono text-xs border-[#00ff9d]/30 text-[#00ff9d]">
+                  <Badge variant="outline" className="font-mono text-xs border-primary/30 text-primary">
                     {token.chain}
                   </Badge>
                 </div>
@@ -158,21 +169,21 @@ const TradeTerminal = () => {
             {/* Price Display */}
             <div className="flex items-center gap-6">
               <div className="text-right">
-                <p className={`text-3xl font-bold font-mono ${token.change24h >= 0 ? 'text-[#00ff9d]' : 'text-[#ff4d4d]'}`}>
+                <p className={`text-3xl font-bold font-mono ${token.change24h >= 0 ? 'text-success' : 'text-destructive'}`}>
                   ${formatPrice(token.price)}
                 </p>
-                <div className={`flex items-center gap-1 justify-end ${token.change24h >= 0 ? 'text-[#00ff9d]' : 'text-[#ff4d4d]'}`}>
+                <div className={`flex items-center gap-1 justify-end ${token.change24h >= 0 ? 'text-success' : 'text-destructive'}`}>
                   {token.change24h >= 0 ? <TrendingUp className="h-4 w-4" /> : <TrendingDown className="h-4 w-4" />}
                   <span className="font-mono">{token.change24h >= 0 ? '+' : ''}{token.change24h.toFixed(2)}%</span>
                 </div>
               </div>
               <div className="text-right text-sm">
                 <p className="text-muted-foreground">24h Vol</p>
-                <p className="font-mono text-white">${formatNumber(token.volume24h)}</p>
+                <p className="font-mono">${formatNumber(token.volume24h)}</p>
               </div>
               <div className="text-right text-sm">
                 <p className="text-muted-foreground">MCap</p>
-                <p className="font-mono text-white">${formatNumber(token.marketCap)}</p>
+                <p className="font-mono">${formatNumber(token.marketCap)}</p>
               </div>
             </div>
           </div>
@@ -186,10 +197,10 @@ const TradeTerminal = () => {
             animate={{ opacity: 1, x: 0 }}
             className="lg:col-span-6"
           >
-            <Card className="h-full border-[#1a1a1a] bg-[#0d0d0d]">
-              <CardHeader className="pb-2 border-b border-[#1a1a1a]">
+            <Card className="h-full">
+              <CardHeader className="pb-2 border-b">
                 <div className="flex items-center justify-between">
-                  <CardTitle className="font-mono text-sm text-[#00ff9d]">PRICE_CHART</CardTitle>
+                  <CardTitle className="font-mono text-sm text-primary">PRICE_CHART</CardTitle>
                   <div className="flex gap-1">
                     {['1m', '5m', '15m', '1h', '4h', '1d'].map((tf) => (
                       <Button
@@ -198,8 +209,8 @@ const TradeTerminal = () => {
                         variant={timeframe === tf ? "default" : "ghost"}
                         className={`font-mono text-xs h-7 px-2 ${
                           timeframe === tf 
-                            ? 'bg-[#00ff9d] text-black hover:bg-[#00ff9d]/90' 
-                            : 'text-muted-foreground hover:text-white hover:bg-[#1a1a1a]'
+                            ? 'bg-primary text-primary-foreground' 
+                            : 'text-muted-foreground hover:text-foreground'
                         }`}
                         onClick={() => setTimeframe(tf)}
                       >
@@ -210,12 +221,12 @@ const TradeTerminal = () => {
                 </div>
               </CardHeader>
               <CardContent className="p-4">
-                {/* TradingView-style Chart Placeholder */}
-                <div className="h-[400px] bg-[#0a0a0a] rounded-lg border border-[#1a1a1a] relative overflow-hidden">
+                {/* Chart Placeholder */}
+                <div className="h-[400px] bg-secondary/30 rounded-lg border relative overflow-hidden">
                   {/* Grid Lines */}
                   <div className="absolute inset-0 grid grid-cols-6 grid-rows-4">
                     {Array.from({ length: 24 }).map((_, i) => (
-                      <div key={i} className="border-[#1a1a1a] border-r border-b" />
+                      <div key={i} className="border-border/20 border-r border-b" />
                     ))}
                   </div>
                   
@@ -228,15 +239,15 @@ const TradeTerminal = () => {
                       return (
                         <div key={i} className="relative flex flex-col items-center" style={{ height: `${wickHeight}%` }}>
                           <div 
-                            className={`w-0.5 absolute top-0 ${isGreen ? 'bg-[#00ff9d]/50' : 'bg-[#ff4d4d]/50'}`}
+                            className={`w-0.5 absolute top-0 ${isGreen ? 'bg-success/50' : 'bg-destructive/50'}`}
                             style={{ height: `${(wickHeight - height) / 2}%` }}
                           />
                           <div 
-                            className={`w-2 rounded-sm ${isGreen ? 'bg-[#00ff9d]' : 'bg-[#ff4d4d]'}`}
+                            className={`w-2 rounded-sm ${isGreen ? 'bg-success' : 'bg-destructive'}`}
                             style={{ height: `${height}%`, marginTop: `${(wickHeight - height) / 4}%` }}
                           />
                           <div 
-                            className={`w-0.5 ${isGreen ? 'bg-[#00ff9d]/50' : 'bg-[#ff4d4d]/50'}`}
+                            className={`w-0.5 ${isGreen ? 'bg-success/50' : 'bg-destructive/50'}`}
                             style={{ height: `${(wickHeight - height) / 2}%` }}
                           />
                         </div>
@@ -246,18 +257,18 @@ const TradeTerminal = () => {
                   
                   {/* Trade Markers */}
                   <div className="absolute top-20 left-1/4 flex items-center gap-1">
-                    <div className="w-3 h-3 rounded-full bg-[#00ff9d] animate-pulse" />
-                    <span className="text-xs font-mono text-[#00ff9d]">BUY $120</span>
+                    <div className="w-3 h-3 rounded-full bg-success animate-pulse" />
+                    <span className="text-xs font-mono text-success">BUY $120</span>
                   </div>
                   <div className="absolute top-32 right-1/3 flex items-center gap-1">
-                    <div className="w-3 h-3 rounded-full bg-[#ff4d4d] animate-pulse" />
-                    <span className="text-xs font-mono text-[#ff4d4d]">SELL $85</span>
+                    <div className="w-3 h-3 rounded-full bg-destructive animate-pulse" />
+                    <span className="text-xs font-mono text-destructive">SELL $85</span>
                   </div>
                   
                   {/* Price Line */}
                   <div className="absolute right-0 top-1/3 flex items-center">
-                    <div className="h-px w-full bg-[#00ff9d]/30 absolute" />
-                    <div className="bg-[#00ff9d] px-2 py-0.5 rounded text-xs font-mono text-black">
+                    <div className="h-px w-full bg-primary/30 absolute" />
+                    <div className="bg-primary px-2 py-0.5 rounded text-xs font-mono text-primary-foreground">
                       ${formatPrice(token.price)}
                     </div>
                   </div>
@@ -275,9 +286,9 @@ const TradeTerminal = () => {
           >
             <div className="space-y-4 h-full flex flex-col">
               {/* Order Book */}
-              <Card className="flex-1 border-[#1a1a1a] bg-[#0d0d0d]">
-                <CardHeader className="pb-2 border-b border-[#1a1a1a]">
-                  <CardTitle className="font-mono text-sm text-[#00ff9d]">ORDER_BOOK</CardTitle>
+              <Card className="flex-1">
+                <CardHeader className="pb-2 border-b">
+                  <CardTitle className="font-mono text-sm text-primary">ORDER_BOOK</CardTitle>
                 </CardHeader>
                 <CardContent className="p-2">
                   <div className="grid grid-cols-3 text-xs font-mono text-muted-foreground mb-2 px-2">
@@ -290,26 +301,26 @@ const TradeTerminal = () => {
                   <div className="space-y-0.5 mb-2">
                     {orderBook.asks.slice(0, 6).map((order, i) => (
                       <div key={`ask-${i}`} className="grid grid-cols-3 text-xs font-mono px-2 py-0.5 relative">
-                        <div className="absolute inset-0 bg-[#ff4d4d]/10" style={{ width: `${(order.amount / 60000) * 100}%` }} />
-                        <span className="text-[#ff4d4d] relative z-10">{formatPrice(order.price)}</span>
-                        <span className="text-right text-white relative z-10">{formatNumber(order.amount)}</span>
+                        <div className="absolute inset-0 bg-destructive/10" style={{ width: `${(order.amount / 60000) * 100}%` }} />
+                        <span className="text-destructive relative z-10">{formatPrice(order.price)}</span>
+                        <span className="text-right relative z-10">{formatNumber(order.amount)}</span>
                         <span className="text-right text-muted-foreground relative z-10">{formatNumber(order.amount * order.price)}</span>
                       </div>
                     ))}
                   </div>
                   
                   {/* Spread */}
-                  <div className="py-2 text-center border-y border-[#1a1a1a]">
-                    <span className="font-mono text-lg font-bold text-[#00ff9d]">${formatPrice(token.price)}</span>
+                  <div className="py-2 text-center border-y">
+                    <span className="font-mono text-lg font-bold text-primary">${formatPrice(token.price)}</span>
                   </div>
                   
                   {/* Bids */}
                   <div className="space-y-0.5 mt-2">
                     {orderBook.bids.slice(0, 6).map((order, i) => (
                       <div key={`bid-${i}`} className="grid grid-cols-3 text-xs font-mono px-2 py-0.5 relative">
-                        <div className="absolute inset-0 bg-[#00ff9d]/10" style={{ width: `${(order.amount / 60000) * 100}%` }} />
-                        <span className="text-[#00ff9d] relative z-10">{formatPrice(order.price)}</span>
-                        <span className="text-right text-white relative z-10">{formatNumber(order.amount)}</span>
+                        <div className="absolute inset-0 bg-success/10" style={{ width: `${(order.amount / 60000) * 100}%` }} />
+                        <span className="text-success relative z-10">{formatPrice(order.price)}</span>
+                        <span className="text-right relative z-10">{formatNumber(order.amount)}</span>
                         <span className="text-right text-muted-foreground relative z-10">{formatNumber(order.amount * order.price)}</span>
                       </div>
                     ))}
@@ -318,9 +329,9 @@ const TradeTerminal = () => {
               </Card>
               
               {/* Recent Trades */}
-              <Card className="flex-1 border-[#1a1a1a] bg-[#0d0d0d]">
-                <CardHeader className="pb-2 border-b border-[#1a1a1a]">
-                  <CardTitle className="font-mono text-sm text-[#00ff9d]">RECENT_TRADES</CardTitle>
+              <Card className="flex-1">
+                <CardHeader className="pb-2 border-b">
+                  <CardTitle className="font-mono text-sm text-primary">RECENT_TRADES</CardTitle>
                 </CardHeader>
                 <CardContent className="p-2">
                   <div className="grid grid-cols-3 text-xs font-mono text-muted-foreground mb-2 px-2">
@@ -331,10 +342,10 @@ const TradeTerminal = () => {
                   <div className="space-y-0.5 max-h-[200px] overflow-y-auto">
                     {recentTrades.map((trade) => (
                       <div key={trade.id} className="grid grid-cols-3 text-xs font-mono px-2 py-0.5">
-                        <span className={trade.isBuy ? 'text-[#00ff9d]' : 'text-[#ff4d4d]'}>
+                        <span className={trade.isBuy ? 'text-success' : 'text-destructive'}>
                           {formatPrice(trade.price)}
                         </span>
-                        <span className="text-right text-white">{formatNumber(trade.amount)}</span>
+                        <span className="text-right">{formatNumber(trade.amount)}</span>
                         <span className="text-right text-muted-foreground">
                           {trade.time.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
                         </span>
@@ -353,23 +364,23 @@ const TradeTerminal = () => {
             transition={{ delay: 0.2 }}
             className="lg:col-span-3"
           >
-            <Card className="border-[#1a1a1a] bg-[#0d0d0d]">
-              <CardHeader className="pb-2 border-b border-[#1a1a1a]">
-                <CardTitle className="font-mono text-sm text-[#00ff9d]">EXECUTE_TRADE</CardTitle>
+            <Card>
+              <CardHeader className="pb-2 border-b">
+                <CardTitle className="font-mono text-sm text-primary">EXECUTE_TRADE</CardTitle>
               </CardHeader>
               <CardContent className="p-4">
                 {/* Buy/Sell Tabs */}
                 <Tabs value={tradeType} onValueChange={(v) => setTradeType(v as "buy" | "sell")}>
-                  <TabsList className="w-full bg-[#1a1a1a] p-1">
+                  <TabsList className="w-full p-1">
                     <TabsTrigger 
                       value="buy" 
-                      className="flex-1 font-mono data-[state=active]:bg-[#00ff9d] data-[state=active]:text-black"
+                      className="flex-1 font-mono data-[state=active]:bg-success data-[state=active]:text-success-foreground"
                     >
                       BUY
                     </TabsTrigger>
                     <TabsTrigger 
                       value="sell" 
-                      className="flex-1 font-mono data-[state=active]:bg-[#ff4d4d] data-[state=active]:text-white"
+                      className="flex-1 font-mono data-[state=active]:bg-destructive data-[state=active]:text-destructive-foreground"
                     >
                       SELL
                     </TabsTrigger>
@@ -398,10 +409,10 @@ const TradeTerminal = () => {
                   </TabsContent>
                 </Tabs>
                 
-                {/* Settings Accordion */}
+                {/* Advanced Settings */}
                 <Accordion type="single" collapsible className="mt-4">
-                  <AccordionItem value="settings" className="border-[#1a1a1a]">
-                    <AccordionTrigger className="text-sm font-mono text-muted-foreground hover:text-white py-2">
+                  <AccordionItem value="settings" className="border-border">
+                    <AccordionTrigger className="text-sm font-mono text-muted-foreground hover:text-foreground py-2">
                       <div className="flex items-center gap-2">
                         <Settings2 className="h-4 w-4" />
                         TRADE_SETTINGS
@@ -419,11 +430,7 @@ const TradeTerminal = () => {
                               key={s}
                               size="sm"
                               variant={slippage === s ? "default" : "outline"}
-                              className={`flex-1 font-mono text-xs ${
-                                slippage === s 
-                                  ? 'bg-[#00ff9d] text-black hover:bg-[#00ff9d]/90' 
-                                  : 'border-[#1a1a1a] hover:bg-[#1a1a1a]'
-                              }`}
+                              className="flex-1 font-mono text-xs"
                               onClick={() => setSlippage(s)}
                             >
                               {s === 'auto' ? 'AUTO' : `${s}%`}
@@ -447,11 +454,7 @@ const TradeTerminal = () => {
                               key={p.key}
                               size="sm"
                               variant={priority === p.key ? "default" : "outline"}
-                              className={`flex-1 font-mono text-xs ${
-                                priority === p.key 
-                                  ? 'bg-[#00ff9d] text-black hover:bg-[#00ff9d]/90' 
-                                  : 'border-[#1a1a1a] hover:bg-[#1a1a1a]'
-                              }`}
+                              className="flex-1 font-mono text-xs"
                               onClick={() => setPriority(p.key as typeof priority)}
                             >
                               <div className="flex flex-col items-center">
@@ -461,6 +464,63 @@ const TradeTerminal = () => {
                             </Button>
                           ))}
                         </div>
+                      </div>
+
+                      {/* Anti-MEV */}
+                      <div className="flex items-center justify-between">
+                        <Label htmlFor="anti-mev" className="text-xs font-mono">Anti-MEV Protection</Label>
+                        <Switch id="anti-mev" checked={antiMev} onCheckedChange={setAntiMev} />
+                      </div>
+                    </AccordionContent>
+                  </AccordionItem>
+
+                  {/* Advanced Orders */}
+                  <AccordionItem value="advanced" className="border-border">
+                    <AccordionTrigger className="text-sm font-mono text-muted-foreground hover:text-foreground py-2">
+                      <div className="flex items-center gap-2">
+                        <Target className="h-4 w-4" />
+                        ADVANCED_ORDERS
+                      </div>
+                    </AccordionTrigger>
+                    <AccordionContent className="pt-2 space-y-4">
+                      {/* Stop Loss */}
+                      <div>
+                        <label className="text-xs font-mono text-muted-foreground mb-2 block">
+                          STOP_LOSS (%)
+                        </label>
+                        <Input
+                          type="number"
+                          value={stopLoss}
+                          onChange={(e) => setStopLoss(e.target.value)}
+                          placeholder="e.g. 10"
+                          className="font-mono h-9"
+                        />
+                      </div>
+
+                      {/* Take Profit */}
+                      <div>
+                        <label className="text-xs font-mono text-muted-foreground mb-2 block">
+                          TAKE_PROFIT (%)
+                        </label>
+                        <Input
+                          type="number"
+                          value={takeProfit}
+                          onChange={(e) => setTakeProfit(e.target.value)}
+                          placeholder="e.g. 50"
+                          className="font-mono h-9"
+                        />
+                      </div>
+
+                      {/* Trailing Stop */}
+                      <div className="flex items-center justify-between">
+                        <Label htmlFor="trailing" className="text-xs font-mono">Trailing Stop</Label>
+                        <Switch id="trailing" checked={trailingStop} onCheckedChange={setTrailingStop} />
+                      </div>
+
+                      {/* Price Alerts */}
+                      <div className="flex items-center justify-between">
+                        <Label htmlFor="alerts" className="text-xs font-mono">Price Alerts</Label>
+                        <Switch id="alerts" checked={enableAlerts} onCheckedChange={setEnableAlerts} />
                       </div>
                     </AccordionContent>
                   </AccordionItem>
@@ -477,11 +537,11 @@ const TradeTerminal = () => {
           transition={{ delay: 0.3 }}
           className="mt-4"
         >
-          <Card className="border-[#1a1a1a] bg-[#0d0d0d]">
-            <CardHeader className="pb-2 border-b border-[#1a1a1a]">
+          <Card>
+            <CardHeader className="pb-2 border-b">
               <div className="flex items-center justify-between">
-                <CardTitle className="font-mono text-sm text-[#00ff9d]">MY_POSITIONS</CardTitle>
-                <Badge variant="outline" className="font-mono text-xs border-[#00ff9d]/30 text-[#00ff9d]">
+                <CardTitle className="font-mono text-sm text-primary">MY_POSITIONS</CardTitle>
+                <Badge variant="outline" className="font-mono text-xs border-primary/30 text-primary">
                   {positions.length} ACTIVE
                 </Badge>
               </div>
@@ -489,22 +549,22 @@ const TradeTerminal = () => {
             <CardContent className="p-0">
               <Table>
                 <TableHeader>
-                  <TableRow className="border-[#1a1a1a] hover:bg-transparent">
-                    <TableHead className="font-mono text-xs text-[#00ff9d]">TOKEN</TableHead>
-                    <TableHead className="font-mono text-xs text-[#00ff9d]">INVESTED</TableHead>
-                    <TableHead className="font-mono text-xs text-[#00ff9d]">CURRENT</TableHead>
-                    <TableHead className="font-mono text-xs text-[#00ff9d]">PNL</TableHead>
-                    <TableHead className="font-mono text-xs text-[#00ff9d] text-right">ACTIONS</TableHead>
+                  <TableRow>
+                    <TableHead className="font-mono text-xs text-primary">TOKEN</TableHead>
+                    <TableHead className="font-mono text-xs text-primary">INVESTED</TableHead>
+                    <TableHead className="font-mono text-xs text-primary">CURRENT</TableHead>
+                    <TableHead className="font-mono text-xs text-primary">PNL</TableHead>
+                    <TableHead className="font-mono text-xs text-primary text-right">ACTIONS</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {positions.map((position) => (
-                    <TableRow key={position.token} className="border-[#1a1a1a] hover:bg-[#1a1a1a]/50">
+                    <TableRow key={position.token}>
                       <TableCell className="font-mono font-bold">{position.token}</TableCell>
                       <TableCell className="font-mono">${position.invested.toFixed(2)}</TableCell>
                       <TableCell className="font-mono">${position.currentValue.toFixed(2)}</TableCell>
                       <TableCell>
-                        <div className={`font-mono ${position.pnl >= 0 ? 'text-[#00ff9d]' : 'text-[#ff4d4d]'}`}>
+                        <div className={`font-mono ${position.pnl >= 0 ? 'text-success' : 'text-destructive'}`}>
                           <span>{position.pnl >= 0 ? '+' : ''}{position.pnl.toFixed(2)}%</span>
                           <span className="text-muted-foreground ml-2">
                             ({position.pnlDollar >= 0 ? '+' : ''}${position.pnlDollar.toFixed(2)})
@@ -516,13 +576,13 @@ const TradeTerminal = () => {
                           <Button 
                             size="sm" 
                             variant="outline" 
-                            className="font-mono text-xs h-7 border-[#ff4d4d]/30 text-[#ff4d4d] hover:bg-[#ff4d4d]/10"
+                            className="font-mono text-xs h-7 border-destructive/30 text-destructive hover:bg-destructive/10"
                           >
                             SELL 50%
                           </Button>
                           <Button 
                             size="sm" 
-                            className="font-mono text-xs h-7 bg-[#ff4d4d] text-white hover:bg-[#ff4d4d]/90"
+                            className="font-mono text-xs h-7 bg-destructive text-destructive-foreground hover:bg-destructive/90"
                           >
                             SELL ALL
                           </Button>
@@ -537,10 +597,10 @@ const TradeTerminal = () => {
         </motion.div>
 
         {/* Mobile Sticky Footer */}
-        <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-[#0d0d0d] border-t border-[#1a1a1a] p-4 z-50">
+        <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-card border-t p-4 z-50">
           <div className="flex gap-2">
             <Button 
-              className="flex-1 h-12 font-mono text-lg bg-[#00ff9d] text-black hover:bg-[#00ff9d]/90"
+              className="flex-1 h-12 font-mono text-lg bg-success text-success-foreground hover:bg-success/90"
               onClick={() => {
                 setTradeType("buy");
                 setShowConfirmModal(true);
@@ -549,7 +609,7 @@ const TradeTerminal = () => {
               BUY
             </Button>
             <Button 
-              className="flex-1 h-12 font-mono text-lg bg-[#ff4d4d] text-white hover:bg-[#ff4d4d]/90"
+              className="flex-1 h-12 font-mono text-lg bg-destructive text-destructive-foreground hover:bg-destructive/90"
               onClick={() => {
                 setTradeType("sell");
                 setShowConfirmModal(true);
@@ -562,22 +622,22 @@ const TradeTerminal = () => {
 
         {/* Confirmation Modal */}
         <Dialog open={showConfirmModal} onOpenChange={setShowConfirmModal}>
-          <DialogContent className="bg-[#0d0d0d] border-[#1a1a1a]">
+          <DialogContent>
             <DialogHeader>
-              <DialogTitle className="font-mono text-[#00ff9d]">CONFIRM_{tradeType.toUpperCase()}</DialogTitle>
+              <DialogTitle className="font-mono text-primary">CONFIRM_{tradeType.toUpperCase()}</DialogTitle>
               <DialogDescription className="font-mono text-muted-foreground">
                 Review your trade before executing
               </DialogDescription>
             </DialogHeader>
             <div className="space-y-4 py-4">
-              <div className="flex justify-between items-center p-3 bg-[#1a1a1a] rounded">
+              <div className="flex justify-between items-center p-3 bg-secondary rounded">
                 <span className="text-muted-foreground font-mono text-sm">You Pay</span>
                 <span className="font-mono font-bold">{payAmount} SOL</span>
               </div>
               <div className="flex justify-center">
                 <ArrowUpDown className="h-5 w-5 text-muted-foreground" />
               </div>
-              <div className="flex justify-between items-center p-3 bg-[#1a1a1a] rounded">
+              <div className="flex justify-between items-center p-3 bg-secondary rounded">
                 <span className="text-muted-foreground font-mono text-sm">You Receive</span>
                 <span className="font-mono font-bold">{formatNumber(receiveAmount)} {token.symbol}</span>
               </div>
@@ -590,13 +650,25 @@ const TradeTerminal = () => {
                   <span>Priority Fee</span>
                   <span>{priority.toUpperCase()}</span>
                 </div>
+                {stopLoss && (
+                  <div className="flex justify-between">
+                    <span>Stop Loss</span>
+                    <span>{stopLoss}%</span>
+                  </div>
+                )}
+                {takeProfit && (
+                  <div className="flex justify-between">
+                    <span>Take Profit</span>
+                    <span>{takeProfit}%</span>
+                  </div>
+                )}
               </div>
             </div>
             <DialogFooter className="flex gap-2">
               <Button 
                 variant="outline" 
                 onClick={() => setShowConfirmModal(false)}
-                className="flex-1 font-mono border-[#1a1a1a]"
+                className="flex-1 font-mono"
               >
                 <X className="h-4 w-4 mr-2" />
                 CANCEL
@@ -605,8 +677,8 @@ const TradeTerminal = () => {
                 onClick={() => setShowConfirmModal(false)}
                 className={`flex-1 font-mono ${
                   tradeType === 'buy' 
-                    ? 'bg-[#00ff9d] text-black hover:bg-[#00ff9d]/90' 
-                    : 'bg-[#ff4d4d] text-white hover:bg-[#ff4d4d]/90'
+                    ? 'bg-success text-success-foreground hover:bg-success/90' 
+                    : 'bg-destructive text-destructive-foreground hover:bg-destructive/90'
                 }`}
               >
                 <Check className="h-4 w-4 mr-2" />
@@ -653,14 +725,14 @@ const SwapForm = ({ tradeType, payAmount, setPayAmount, receiveAmount, token, on
             type="number"
             value={payAmount}
             onChange={(e) => setPayAmount(e.target.value)}
-            className="h-14 text-xl font-mono pr-20 bg-[#1a1a1a] border-[#2a2a2a] focus:border-[#00ff9d]"
+            className="h-14 text-xl font-mono pr-20"
             placeholder="0.00"
           />
           <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-2">
             <Button 
               variant="ghost" 
               size="sm" 
-              className="h-6 px-2 text-xs font-mono text-[#00ff9d] hover:bg-[#00ff9d]/10"
+              className="h-6 px-2 text-xs font-mono text-primary hover:bg-primary/10"
               onClick={() => setPayAmount("12.5")}
             >
               MAX
@@ -672,7 +744,7 @@ const SwapForm = ({ tradeType, payAmount, setPayAmount, receiveAmount, token, on
       
       {/* Swap Icon */}
       <div className="flex justify-center">
-        <div className="w-10 h-10 rounded-full bg-[#1a1a1a] border border-[#2a2a2a] flex items-center justify-center">
+        <div className="w-10 h-10 rounded-full bg-secondary flex items-center justify-center">
           <ArrowUpDown className="h-5 w-5 text-muted-foreground" />
         </div>
       </div>
@@ -687,7 +759,7 @@ const SwapForm = ({ tradeType, payAmount, setPayAmount, receiveAmount, token, on
             type="text"
             value={formatNumber(receiveAmount)}
             readOnly
-            className="h-14 text-xl font-mono pr-20 bg-[#1a1a1a] border-[#2a2a2a]"
+            className="h-14 text-xl font-mono pr-20"
           />
           <div className="absolute right-3 top-1/2 -translate-y-1/2">
             <span className="font-mono font-bold">{tradeType === 'buy' ? token.symbol : 'SOL'}</span>
@@ -700,8 +772,8 @@ const SwapForm = ({ tradeType, payAmount, setPayAmount, receiveAmount, token, on
         onClick={onSwap}
         className={`w-full h-14 text-lg font-mono font-bold ${
           tradeType === 'buy' 
-            ? 'bg-[#00ff9d] text-black hover:bg-[#00ff9d]/90' 
-            : 'bg-[#ff4d4d] text-white hover:bg-[#ff4d4d]/90'
+            ? 'bg-success text-success-foreground hover:bg-success/90' 
+            : 'bg-destructive text-destructive-foreground hover:bg-destructive/90'
         }`}
       >
         <Zap className="h-5 w-5 mr-2" />

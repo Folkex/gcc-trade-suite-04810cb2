@@ -12,13 +12,24 @@ import {
   Eye,
   Zap,
   ShoppingCart,
-  ExternalLink
+  ExternalLink,
+  Filter,
+  RefreshCw,
+  Volume2
 } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   Table,
   TableBody,
@@ -27,7 +38,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Progress } from "@/components/ui/progress";
 import { useNavigate } from "react-router-dom";
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
 import QuickTradeModal from "@/components/trade/QuickTradeModal";
@@ -44,6 +54,9 @@ interface NewPair {
   isScam: boolean;
   holders: number;
   price: number;
+  volume: number;
+  buys: number;
+  sells: number;
 }
 
 const mockNewPairs: NewPair[] = [
@@ -59,6 +72,9 @@ const mockNewPairs: NewPair[] = [
     isScam: false,
     holders: 342,
     price: 0.00234,
+    volume: 89000,
+    buys: 156,
+    sells: 23,
   },
   {
     id: "2",
@@ -72,6 +88,9 @@ const mockNewPairs: NewPair[] = [
     isScam: true,
     holders: 45,
     price: 0.000012,
+    volume: 3200,
+    buys: 12,
+    sells: 34,
   },
   {
     id: "3",
@@ -85,6 +104,9 @@ const mockNewPairs: NewPair[] = [
     isScam: false,
     holders: 1234,
     price: 0.0089,
+    volume: 567000,
+    buys: 892,
+    sells: 123,
   },
   {
     id: "4",
@@ -98,6 +120,9 @@ const mockNewPairs: NewPair[] = [
     isScam: true,
     holders: 28,
     price: 0.0000034,
+    volume: 1200,
+    buys: 8,
+    sells: 15,
   },
   {
     id: "5",
@@ -111,6 +136,9 @@ const mockNewPairs: NewPair[] = [
     isScam: false,
     holders: 876,
     price: 0.0456,
+    volume: 234000,
+    buys: 456,
+    sells: 89,
   },
   {
     id: "6",
@@ -124,13 +152,16 @@ const mockNewPairs: NewPair[] = [
     isScam: false,
     holders: 2341,
     price: 0.123,
+    volume: 890000,
+    buys: 1234,
+    sells: 156,
   },
 ];
 
 const chainColors: Record<string, string> = {
-  ETH: "bg-blue-500/20 text-blue-400 border-blue-500/30",
-  SOL: "bg-purple-500/20 text-purple-400 border-purple-500/30",
-  BSC: "bg-yellow-500/20 text-yellow-400 border-yellow-500/30",
+  ETH: "bg-blue-500/20 text-blue-500 border-blue-500/30",
+  SOL: "bg-purple-500/20 text-purple-500 border-purple-500/30",
+  BSC: "bg-yellow-500/20 text-yellow-500 border-yellow-500/30",
 };
 
 const getTimeAgo = (date: Date) => {
@@ -141,20 +172,24 @@ const getTimeAgo = (date: Date) => {
 };
 
 const getHypeColor = (score: number) => {
-  if (score >= 80) return "text-[#00ff9d]";
-  if (score >= 50) return "text-yellow-400";
-  return "text-[#ff4d4d]";
+  if (score >= 80) return "text-success";
+  if (score >= 50) return "text-warning";
+  return "text-destructive";
 };
 
 const MarketSniper = () => {
   const [scamFilter, setScamFilter] = useState(true);
   const [pairs] = useState<NewPair[]>(mockNewPairs);
   const [quickTradeToken, setQuickTradeToken] = useState<NewPair | null>(null);
+  const [chainFilter, setChainFilter] = useState<string>("all");
+  const [minLiquidity, setMinLiquidity] = useState("");
+  const [soundAlerts, setSoundAlerts] = useState(false);
   const navigate = useNavigate();
 
-  const filteredPairs = scamFilter
-    ? pairs.filter((p) => !p.isScam)
-    : pairs;
+  const filteredPairs = pairs
+    .filter((p) => !scamFilter || !p.isScam)
+    .filter((p) => chainFilter === "all" || p.chain === chainFilter)
+    .filter((p) => !minLiquidity || p.liquidity >= parseInt(minLiquidity) * 1000);
 
   const formatLiquidity = (value: number) => {
     if (value >= 1000000) return `$${(value / 1000000).toFixed(2)}M`;
@@ -173,20 +208,20 @@ const MarketSniper = () => {
 
   return (
     <DashboardLayout>
-      <div style={{ background: '#0a0a0a' }} className="min-h-screen -m-4 md:-m-6 p-4 md:p-6">
+      <div className="min-h-screen">
         {/* Terminal Header */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="mb-8"
+          className="mb-6"
         >
           <div className="flex items-center gap-3 mb-2">
-            <div className="h-12 w-12 rounded-lg bg-gradient-to-br from-[#00ff9d] to-emerald-600 flex items-center justify-center shadow-lg shadow-[#00ff9d]/25">
-              <Crosshair className="h-6 w-6 text-black" />
+            <div className="h-12 w-12 rounded-lg bg-gradient-to-br from-primary to-primary/50 flex items-center justify-center shadow-lg shadow-primary/25">
+              <Crosshair className="h-6 w-6 text-primary-foreground" />
             </div>
             <div>
-              <h1 className="text-2xl md:text-3xl font-bold text-white font-mono tracking-tight">
-                MARKET_SNIPER<span className="text-[#00ff9d] animate-pulse">_</span>
+              <h1 className="text-2xl md:text-3xl font-bold font-mono tracking-tight">
+                MARKET_SNIPER<span className="text-primary animate-pulse">_</span>
               </h1>
               <p className="text-muted-foreground font-mono text-sm">
                 // Real-time new pair detection • Click any row to trade
@@ -198,10 +233,10 @@ const MarketSniper = () => {
         {/* Stats Cards */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
           {[
-            { label: "New Pairs (24h)", value: "147", icon: Flame, color: "text-orange-400" },
-            { label: "Avg Liquidity", value: "$245K", icon: Droplets, color: "text-blue-400" },
-            { label: "Gems Found", value: "12", icon: TrendingUp, color: "text-[#00ff9d]" },
-            { label: "Scams Detected", value: "89", icon: Shield, color: "text-[#ff4d4d]" },
+            { label: "New Pairs (24h)", value: "147", icon: Flame, color: "text-orange-500" },
+            { label: "Avg Liquidity", value: "$245K", icon: Droplets, color: "text-blue-500" },
+            { label: "Gems Found", value: "12", icon: TrendingUp, color: "text-success" },
+            { label: "Scams Detected", value: "89", icon: Shield, color: "text-destructive" },
           ].map((stat, index) => (
             <motion.div
               key={stat.label}
@@ -209,7 +244,7 @@ const MarketSniper = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.05 }}
             >
-              <Card className="bg-[#0d0d0d] border-[#1a1a1a] hover:border-[#00ff9d]/30 transition-colors">
+              <Card className="hover:border-primary/30 transition-colors">
                 <CardContent className="p-4">
                   <div className="flex items-center justify-between">
                     <stat.icon className={`h-5 w-5 ${stat.color}`} />
@@ -226,44 +261,99 @@ const MarketSniper = () => {
           ))}
         </div>
 
-        {/* Filters */}
+        {/* Advanced Filters */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
-          className="flex items-center justify-between mb-4"
+          className="mb-4"
         >
-          <div className="flex items-center gap-4">
-            <div className="flex items-center gap-2">
-              <Shield className="h-4 w-4 text-[#00ff9d]" />
-              <Label htmlFor="scam-filter" className="text-sm font-mono text-white">
-                Scam Filter
-              </Label>
-              <Switch
-                id="scam-filter"
-                checked={scamFilter}
-                onCheckedChange={setScamFilter}
-                className="data-[state=checked]:bg-[#00ff9d]"
-              />
-            </div>
-          </div>
-          <div className="flex gap-2">
-            <Button
-              variant="outline"
-              className="border-[#00ff9d]/30 text-[#00ff9d] hover:bg-[#00ff9d]/10 font-mono"
-              onClick={() => navigate("/gem-finder")}
-            >
-              <Crosshair className="h-4 w-4 mr-2" />
-              GEM_FINDER
-            </Button>
-            <Button
-              className="bg-[#00ff9d] text-black hover:bg-[#00ff9d]/90 font-mono"
-              onClick={() => navigate("/trade")}
-            >
-              <ExternalLink className="h-4 w-4 mr-2" />
-              OPEN_TERMINAL
-            </Button>
-          </div>
+          <Card>
+            <CardContent className="p-4">
+              <div className="flex flex-wrap items-center gap-4">
+                {/* Scam Filter */}
+                <div className="flex items-center gap-2">
+                  <Shield className="h-4 w-4 text-primary" />
+                  <Label htmlFor="scam-filter" className="text-sm font-mono">
+                    Scam Filter
+                  </Label>
+                  <Switch
+                    id="scam-filter"
+                    checked={scamFilter}
+                    onCheckedChange={setScamFilter}
+                  />
+                </div>
+
+                {/* Chain Filter */}
+                <div className="flex items-center gap-2">
+                  <Filter className="h-4 w-4 text-muted-foreground" />
+                  <Select value={chainFilter} onValueChange={setChainFilter}>
+                    <SelectTrigger className="w-[120px] h-8 font-mono text-xs">
+                      <SelectValue placeholder="Chain" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Chains</SelectItem>
+                      <SelectItem value="SOL">Solana</SelectItem>
+                      <SelectItem value="ETH">Ethereum</SelectItem>
+                      <SelectItem value="BSC">BSC</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {/* Min Liquidity */}
+                <div className="flex items-center gap-2">
+                  <Droplets className="h-4 w-4 text-muted-foreground" />
+                  <Input
+                    type="number"
+                    placeholder="Min Liq (K)"
+                    value={minLiquidity}
+                    onChange={(e) => setMinLiquidity(e.target.value)}
+                    className="w-[100px] h-8 font-mono text-xs"
+                  />
+                </div>
+
+                {/* Sound Alerts */}
+                <div className="flex items-center gap-2">
+                  <Volume2 className="h-4 w-4 text-muted-foreground" />
+                  <Label htmlFor="sound" className="text-sm font-mono">
+                    Sound
+                  </Label>
+                  <Switch
+                    id="sound"
+                    checked={soundAlerts}
+                    onCheckedChange={setSoundAlerts}
+                  />
+                </div>
+
+                <div className="flex-1" />
+
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="font-mono"
+                >
+                  <RefreshCw className="h-4 w-4 mr-2" />
+                  Refresh
+                </Button>
+
+                <Button
+                  variant="outline"
+                  className="font-mono"
+                  onClick={() => navigate("/gem-finder")}
+                >
+                  <Crosshair className="h-4 w-4 mr-2" />
+                  GEM_FINDER
+                </Button>
+                <Button
+                  className="font-mono"
+                  onClick={() => navigate("/trade")}
+                >
+                  <ExternalLink className="h-4 w-4 mr-2" />
+                  OPEN_TERMINAL
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
         </motion.div>
 
         {/* Live Pairs Table */}
@@ -272,13 +362,16 @@ const MarketSniper = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
         >
-          <Card className="bg-[#0d0d0d] border-[#1a1a1a] overflow-hidden">
-            <CardHeader className="pb-0 border-b border-[#1a1a1a]">
+          <Card className="overflow-hidden">
+            <CardHeader className="pb-0 border-b">
               <div className="flex items-center gap-2">
-                <div className="h-2 w-2 rounded-full bg-[#00ff9d] animate-pulse" />
-                <CardTitle className="font-mono text-lg text-white">LIVE_NEW_PAIRS</CardTitle>
+                <div className="h-2 w-2 rounded-full bg-success animate-pulse" />
+                <CardTitle className="font-mono text-lg">LIVE_NEW_PAIRS</CardTitle>
+                <Badge variant="outline" className="ml-auto font-mono text-xs">
+                  {filteredPairs.length} results
+                </Badge>
               </div>
-              <CardDescription className="font-mono text-xs text-muted-foreground">
+              <CardDescription className="font-mono text-xs">
                 // Click any row to open full trading terminal
               </CardDescription>
             </CardHeader>
@@ -286,14 +379,16 @@ const MarketSniper = () => {
               <div className="overflow-x-auto">
                 <Table>
                   <TableHeader>
-                    <TableRow className="border-[#1a1a1a] hover:bg-transparent">
-                      <TableHead className="font-mono text-xs text-[#00ff9d]">TOKEN</TableHead>
-                      <TableHead className="font-mono text-xs text-[#00ff9d]">CHAIN</TableHead>
-                      <TableHead className="font-mono text-xs text-[#00ff9d]">LAUNCHED</TableHead>
-                      <TableHead className="font-mono text-xs text-[#00ff9d]">LIQUIDITY</TableHead>
-                      <TableHead className="font-mono text-xs text-[#00ff9d]">HYPE_SCORE</TableHead>
-                      <TableHead className="font-mono text-xs text-[#00ff9d]">CHANGE</TableHead>
-                      <TableHead className="font-mono text-xs text-[#00ff9d] text-right">ACTIONS</TableHead>
+                    <TableRow>
+                      <TableHead className="font-mono text-xs text-primary">TOKEN</TableHead>
+                      <TableHead className="font-mono text-xs text-primary">CHAIN</TableHead>
+                      <TableHead className="font-mono text-xs text-primary">LAUNCHED</TableHead>
+                      <TableHead className="font-mono text-xs text-primary">LIQUIDITY</TableHead>
+                      <TableHead className="font-mono text-xs text-primary">VOLUME</TableHead>
+                      <TableHead className="font-mono text-xs text-primary">BUYS/SELLS</TableHead>
+                      <TableHead className="font-mono text-xs text-primary">HYPE</TableHead>
+                      <TableHead className="font-mono text-xs text-primary">CHANGE</TableHead>
+                      <TableHead className="font-mono text-xs text-primary text-right">ACTIONS</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -305,24 +400,24 @@ const MarketSniper = () => {
                           animate={{ opacity: pair.isScam && !scamFilter ? 0.4 : 1, x: 0 }}
                           exit={{ opacity: 0, x: 20 }}
                           transition={{ delay: index * 0.05 }}
-                          className={`border-[#1a1a1a] hover:bg-[#00ff9d]/5 cursor-pointer group ${
+                          className={`border-b hover:bg-muted/50 cursor-pointer group ${
                             pair.isScam && !scamFilter ? "opacity-40" : ""
                           }`}
                           onClick={() => handleRowClick(pair)}
                         >
                           <TableCell className="font-mono">
                             <div className="flex items-center gap-2">
-                              <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-[#00ff9d]/20 to-emerald-600/20 border border-[#00ff9d]/30 flex items-center justify-center">
-                                <span className="text-xs font-bold text-[#00ff9d]">
+                              <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-primary/20 to-primary/10 border border-primary/30 flex items-center justify-center">
+                                <span className="text-xs font-bold text-primary">
                                   {pair.symbol.slice(0, 2)}
                                 </span>
                               </div>
                               <div>
-                                <p className="font-medium text-sm text-white">{pair.name}</p>
+                                <p className="font-medium text-sm">{pair.name}</p>
                                 <p className="text-xs text-muted-foreground">${pair.symbol}</p>
                               </div>
                               {pair.isScam && (
-                                <AlertTriangle className="h-4 w-4 text-[#ff4d4d]" />
+                                <AlertTriangle className="h-4 w-4 text-destructive" />
                               )}
                             </div>
                           </TableCell>
@@ -338,18 +433,26 @@ const MarketSniper = () => {
                             </div>
                           </TableCell>
                           <TableCell className="font-mono text-sm">
-                            <div className="flex items-center gap-1 text-blue-400">
+                            <div className="flex items-center gap-1 text-blue-500">
                               <Droplets className="h-3 w-3" />
                               {formatLiquidity(pair.liquidity)}
                             </div>
                           </TableCell>
+                          <TableCell className="font-mono text-sm text-purple-500">
+                            {formatLiquidity(pair.volume)}
+                          </TableCell>
+                          <TableCell className="font-mono text-sm">
+                            <span className="text-success">{pair.buys}</span>
+                            <span className="text-muted-foreground">/</span>
+                            <span className="text-destructive">{pair.sells}</span>
+                          </TableCell>
                           <TableCell>
                             <div className="flex items-center gap-2">
-                              <div className="w-16 h-1.5 bg-[#1a1a1a] rounded-full overflow-hidden">
+                              <div className="w-16 h-1.5 bg-muted rounded-full overflow-hidden">
                                 <div
                                   className={`h-full rounded-full ${
-                                    pair.hypeScore >= 80 ? 'bg-[#00ff9d]' :
-                                    pair.hypeScore >= 50 ? 'bg-yellow-400' : 'bg-[#ff4d4d]'
+                                    pair.hypeScore >= 80 ? 'bg-success' :
+                                    pair.hypeScore >= 50 ? 'bg-warning' : 'bg-destructive'
                                   }`}
                                   style={{ width: `${pair.hypeScore}%` }}
                                 />
@@ -361,7 +464,7 @@ const MarketSniper = () => {
                           </TableCell>
                           <TableCell>
                             <div className={`flex items-center gap-1 font-mono text-sm ${
-                              pair.priceChange >= 0 ? "text-[#00ff9d]" : "text-[#ff4d4d]"
+                              pair.priceChange >= 0 ? "text-success" : "text-destructive"
                             }`}>
                               {pair.priceChange >= 0 ? (
                                 <TrendingUp className="h-3 w-3" />
@@ -376,7 +479,7 @@ const MarketSniper = () => {
                               <Button
                                 variant="outline"
                                 size="sm"
-                                className="opacity-0 group-hover:opacity-100 transition-opacity text-[#00ff9d] border-[#00ff9d]/30 hover:bg-[#00ff9d]/10 font-mono"
+                                className="opacity-0 group-hover:opacity-100 transition-opacity font-mono"
                                 onClick={(e) => handleQuickBuy(e, pair)}
                               >
                                 <ShoppingCart className="h-3 w-3 mr-1" />
@@ -385,7 +488,7 @@ const MarketSniper = () => {
                               <Button
                                 variant="ghost"
                                 size="sm"
-                                className="text-[#00ff9d] hover:text-[#00ff9d] hover:bg-[#00ff9d]/10"
+                                className="text-primary hover:bg-primary/10"
                               >
                                 <Eye className="h-4 w-4" />
                               </Button>

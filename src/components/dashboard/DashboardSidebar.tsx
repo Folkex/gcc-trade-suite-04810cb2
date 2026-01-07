@@ -3,7 +3,6 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   LayoutDashboard,
-  BarChart3,
   Settings,
   LogOut,
   ChevronLeft,
@@ -24,6 +23,10 @@ import {
   User,
   Lock,
   HelpCircle,
+  BarChart3,
+  Bell,
+  FileText,
+  Scale,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -55,12 +58,14 @@ const navSections: NavSection[] = [
       { title: "Overview", icon: LayoutDashboard, path: "/dashboard" },
       { title: "Projects", icon: FolderOpen, path: "/projects" },
       { title: "Team", icon: Users, path: "/team" },
+      { title: "Notifications", icon: Bell, path: "/notifications" },
     ],
   },
   {
     title: "TERMINAL",
     defaultOpen: true,
     items: [
+      { title: "Trade Terminal", icon: BarChart3, path: "/trade" },
       { title: "Sniper Board", icon: Crosshair, path: "/market-sniper" },
       { title: "Scanner", icon: Shield, path: "/scanner" },
       { title: "Whale Watch", icon: Waves, path: "/whale-watch" },
@@ -90,7 +95,17 @@ const navSections: NavSection[] = [
     items: [
       { title: "Profile", icon: User, path: "/settings/profile" },
       { title: "Security", icon: Lock, path: "/settings/security" },
+      { title: "Preferences", icon: Settings, path: "/dashboard/settings" },
       { title: "Support", icon: HelpCircle, path: "/support" },
+    ],
+  },
+  {
+    title: "LEGAL",
+    defaultOpen: false,
+    items: [
+      { title: "Terms of Service", icon: FileText, path: "/legal/terms" },
+      { title: "Privacy Policy", icon: Shield, path: "/legal/privacy" },
+      { title: "Refund Policy", icon: Scale, path: "/legal/refund" },
     ],
   },
 ];
@@ -138,10 +153,12 @@ const DashboardSidebar = ({ collapsed, onToggle }: DashboardSidebarProps) => {
       case "TERMINAL":
         return "text-primary";
       case "FINANCE":
-        return "text-green-400";
+        return "text-amber-500";
       case "GROWTH":
-        return "text-amber-400";
+        return "text-purple-500";
       case "SETTINGS":
+        return "text-muted-foreground";
+      case "LEGAL":
         return "text-muted-foreground";
       default:
         return "text-foreground";
@@ -153,10 +170,10 @@ const DashboardSidebar = ({ collapsed, onToggle }: DashboardSidebarProps) => {
       initial={false}
       animate={{ width: collapsed ? 72 : 260 }}
       transition={{ duration: 0.2, ease: "easeInOut" }}
-      className="fixed left-0 top-0 z-40 h-screen glass glass-border border-r flex flex-col"
+      className="fixed left-0 top-0 z-40 h-screen bg-card border-r border-border flex flex-col"
     >
       {/* Logo Section */}
-      <div className="h-16 flex items-center justify-between px-4 border-b border-border/50">
+      <div className="h-16 flex items-center justify-between px-4 border-b border-border">
         <AnimatePresence mode="wait">
           {!collapsed && (
             <motion.div
@@ -168,7 +185,7 @@ const DashboardSidebar = ({ collapsed, onToggle }: DashboardSidebarProps) => {
               <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-primary/50 flex items-center justify-center">
                 <Target className="w-4 h-4 text-primary-foreground" />
               </div>
-              <span className="font-bold text-lg font-mono text-foreground">SNIPER</span>
+              <span className="font-bold text-lg font-mono text-foreground">TradeFlow</span>
             </motion.div>
           )}
         </AnimatePresence>
@@ -289,7 +306,7 @@ const DashboardSidebar = ({ collapsed, onToggle }: DashboardSidebarProps) => {
       </div>
 
       {/* Logout Button */}
-      <div className="p-3 border-t border-border/50">
+      <div className="p-3 border-t border-border">
         <Button
           variant="ghost"
           onClick={handleLogout}

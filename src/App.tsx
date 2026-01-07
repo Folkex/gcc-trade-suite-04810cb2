@@ -44,6 +44,9 @@ import Security from "./pages/Security";
 import Support from "./pages/Support";
 import HelpSupport from "./pages/HelpSupport";
 
+// Legal Pages
+import LegalPage from "./pages/LegalPage";
+
 const queryClient = new QueryClient();
 
 function App() {
