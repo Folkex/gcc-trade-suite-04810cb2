@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Play, TrendingUp, Shield, Zap } from "lucide-react";
+import { ArrowRight, Zap, Shield, Rocket, LayoutDashboard, Crosshair, Wallet, Trophy } from "lucide-react";
 import { motion } from "framer-motion";
+import { Link } from "react-router-dom";
 
 interface HeroSectionProps {
   lang: "en" | "ar";
@@ -8,32 +9,32 @@ interface HeroSectionProps {
 
 const translations = {
   en: {
-    badge: "Trusted by 50,000+ traders in the GCC",
-    title: "Trade Smarter.",
-    titleHighlight: "Grow Faster.",
-    subtitle: "The most intuitive trading platform designed for beginners. Trade crypto, forex, and commodities with confidence.",
-    cta: "Start Trading Free",
-    watchDemo: "Watch Demo",
-    stat1: "Markets",
-    stat1Value: "500+",
-    stat2: "Daily Volume",
-    stat2Value: "$2.5B+",
-    stat3: "Countries",
-    stat3Value: "15+",
+    badge: "The Ultimate Trading Super App",
+    title: "One Platform.",
+    titleHighlight: "Unlimited Power.",
+    subtitle: "Trade crypto, manage projects, track whales, copy top traders, and grow your empire — all from a single command center.",
+    cta: "Launch Dashboard",
+    watchDemo: "Explore Features",
+    features: [
+      { icon: LayoutDashboard, label: "Mission Control" },
+      { icon: Crosshair, label: "Sniper Terminal" },
+      { icon: Wallet, label: "Multi-Wallet" },
+      { icon: Trophy, label: "Leaderboard" },
+    ],
   },
   ar: {
-    badge: "موثوق من قبل أكثر من 50,000 متداول في دول الخليج",
-    title: "تداول بذكاء.",
-    titleHighlight: "انمو أسرع.",
-    subtitle: "منصة التداول الأكثر سهولة للمبتدئين. تداول العملات الرقمية والفوركس والسلع بثقة.",
-    cta: "ابدأ التداول مجاناً",
-    watchDemo: "شاهد العرض",
-    stat1: "الأسواق",
-    stat1Value: "+500",
-    stat2: "الحجم اليومي",
-    stat2Value: "+$2.5B",
-    stat3: "الدول",
-    stat3Value: "+15",
+    badge: "التطبيق الخارق للتداول",
+    title: "منصة واحدة.",
+    titleHighlight: "قوة لا محدودة.",
+    subtitle: "تداول العملات الرقمية، أدِر المشاريع، تتبع الحيتان، انسخ كبار المتداولين، ونمِّ إمبراطوريتك — كل ذلك من مركز قيادة واحد.",
+    cta: "أطلق لوحة التحكم",
+    watchDemo: "اكتشف المميزات",
+    features: [
+      { icon: LayoutDashboard, label: "مركز القيادة" },
+      { icon: Crosshair, label: "محطة القنص" },
+      { icon: Wallet, label: "محافظ متعددة" },
+      { icon: Trophy, label: "لوحة المتصدرين" },
+    ],
   },
 };
 
@@ -41,142 +42,192 @@ const HeroSection = ({ lang }: HeroSectionProps) => {
   const t = translations[lang];
   const isRTL = lang === "ar";
 
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.1,
-        delayChildren: 0.2,
-      },
-    },
-  };
-
-  const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: { opacity: 1, y: 0 },
-  };
-
   return (
-    <section className="relative min-h-screen flex items-center pt-16 overflow-hidden">
-      {/* Background Elements */}
-      <div className="absolute inset-0 bg-gradient-to-b from-secondary/50 to-background" />
-      <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/10 rounded-full blur-3xl" />
-      <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-accent/10 rounded-full blur-3xl" />
+    <section className="relative min-h-screen flex items-center pt-20 overflow-hidden">
+      {/* Animated Background */}
+      <div className="absolute inset-0">
+        <div className="absolute inset-0 bg-gradient-to-br from-background via-background to-primary/5" />
+        <div className="absolute top-1/4 left-1/4 w-[500px] h-[500px] bg-primary/10 rounded-full blur-[120px] animate-pulse" />
+        <div className="absolute bottom-1/4 right-1/4 w-[400px] h-[400px] bg-accent/10 rounded-full blur-[100px] animate-pulse" style={{ animationDelay: '1s' }} />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-primary/5 rounded-full blur-[150px]" />
+      </div>
       
       {/* Grid Pattern */}
-      <div className="absolute inset-0 bg-[linear-gradient(rgba(0,0,0,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(0,0,0,0.02)_1px,transparent_1px)] bg-[size:50px_50px] dark:bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)]" />
+      <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:60px_60px]" />
+
+      {/* Floating Particles */}
+      <div className="absolute inset-0 overflow-hidden">
+        {[...Array(20)].map((_, i) => (
+          <motion.div
+            key={i}
+            className="absolute w-1 h-1 bg-primary/30 rounded-full"
+            initial={{ 
+              x: Math.random() * window.innerWidth, 
+              y: Math.random() * window.innerHeight,
+              opacity: 0 
+            }}
+            animate={{ 
+              y: [null, Math.random() * -200],
+              opacity: [0, 1, 0]
+            }}
+            transition={{
+              duration: 3 + Math.random() * 2,
+              repeat: Infinity,
+              delay: Math.random() * 2,
+            }}
+          />
+        ))}
+      </div>
 
       <div className="container mx-auto px-4 relative z-10">
-        <motion.div
-          variants={containerVariants}
-          initial="hidden"
-          animate="visible"
-          className="max-w-4xl mx-auto text-center"
-          dir={isRTL ? "rtl" : "ltr"}
-        >
+        <div className="max-w-5xl mx-auto" dir={isRTL ? "rtl" : "ltr"}>
           {/* Badge */}
-          <motion.div variants={itemVariants} className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-accent/20 text-accent-foreground mb-8">
-            <TrendingUp className="h-4 w-4 text-accent" />
-            <span className="text-sm font-medium">{t.badge}</span>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            className="flex justify-center mb-8"
+          >
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 text-primary">
+              <Zap className="h-4 w-4" />
+              <span className="text-sm font-medium">{t.badge}</span>
+              <Rocket className="h-4 w-4" />
+            </div>
           </motion.div>
 
           {/* Main Heading */}
-          <motion.h1 variants={itemVariants} className="font-display text-5xl md:text-7xl font-bold tracking-tight mb-6">
+          <motion.h1
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+            className="text-center font-display text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-bold tracking-tight mb-6"
+          >
             {t.title}
             <br />
             <span className="text-gradient">{t.titleHighlight}</span>
           </motion.h1>
 
           {/* Subtitle */}
-          <motion.p variants={itemVariants} className="text-xl text-muted-foreground max-w-2xl mx-auto mb-10">
+          <motion.p
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+            className="text-center text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto mb-10"
+          >
             {t.subtitle}
           </motion.p>
 
           {/* CTAs */}
-          <motion.div variants={itemVariants} className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4 }}
+            className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16"
+          >
             <Button 
+              asChild
               size="lg" 
-              className="bg-gradient-to-r from-primary to-accent hover:opacity-90 transition-opacity text-lg px-8 py-6 rounded-xl gap-2"
+              className="bg-gradient-to-r from-primary to-accent hover:opacity-90 transition-all text-lg px-8 py-6 rounded-xl gap-2 shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/30"
             >
-              {t.cta}
-              <ArrowRight className="h-5 w-5" />
+              <Link to="/dashboard">
+                {t.cta}
+                <ArrowRight className="h-5 w-5" />
+              </Link>
             </Button>
             <Button 
               size="lg" 
               variant="outline" 
-              className="text-lg px-8 py-6 rounded-xl gap-2"
+              className="text-lg px-8 py-6 rounded-xl gap-2 border-border/50 hover:bg-secondary/50"
+              onClick={() => document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' })}
             >
-              <Play className="h-5 w-5" />
+              <Shield className="h-5 w-5" />
               {t.watchDemo}
             </Button>
           </motion.div>
 
-          {/* Stats */}
-          <motion.div 
-            variants={itemVariants} 
-            className="grid grid-cols-3 gap-8 max-w-2xl mx-auto"
+          {/* Feature Pills */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.5 }}
+            className="flex flex-wrap items-center justify-center gap-3"
           >
-            {[
-              { label: t.stat1, value: t.stat1Value, icon: TrendingUp },
-              { label: t.stat2, value: t.stat2Value, icon: Zap },
-              { label: t.stat3, value: t.stat3Value, icon: Shield },
-            ].map((stat) => (
-              <div key={stat.label} className="text-center">
-                <div className="text-3xl md:text-4xl font-bold font-display mb-1">{stat.value}</div>
-                <div className="text-sm text-muted-foreground">{stat.label}</div>
-              </div>
+            {t.features.map((feature, index) => (
+              <motion.div
+                key={feature.label}
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: 0.6 + index * 0.1 }}
+                className="flex items-center gap-2 px-4 py-2 rounded-full bg-card/50 border border-border/50 backdrop-blur-sm"
+              >
+                <feature.icon className="h-4 w-4 text-primary" />
+                <span className="text-sm font-medium text-foreground">{feature.label}</span>
+              </motion.div>
             ))}
           </motion.div>
-        </motion.div>
+        </div>
 
-        {/* Floating Cards Preview */}
+        {/* Dashboard Preview */}
         <motion.div
-          initial={{ opacity: 0, y: 100 }}
+          initial={{ opacity: 0, y: 60 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.6, duration: 0.8 }}
-          className="mt-16 relative"
+          transition={{ delay: 0.7, duration: 0.8 }}
+          className="mt-20 relative"
         >
-          <div className="max-w-5xl mx-auto">
-            <div className="relative bg-card rounded-2xl shadow-2xl border border-border overflow-hidden">
-              {/* Mock Dashboard Header */}
-              <div className="bg-secondary/50 px-6 py-4 border-b border-border flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 rounded-full bg-destructive" />
-                  <div className="w-3 h-3 rounded-full bg-warning" />
-                  <div className="w-3 h-3 rounded-full bg-success" />
+          <div className="max-w-6xl mx-auto">
+            {/* Glow Effect */}
+            <div className="absolute -inset-4 bg-gradient-to-r from-primary/20 via-accent/20 to-primary/20 rounded-3xl blur-2xl opacity-50" />
+            
+            <div className="relative bg-card/80 backdrop-blur-xl rounded-2xl shadow-2xl border border-border/50 overflow-hidden">
+              {/* Browser Chrome */}
+              <div className="bg-secondary/50 px-4 py-3 border-b border-border/50 flex items-center gap-3">
+                <div className="flex items-center gap-1.5">
+                  <div className="w-3 h-3 rounded-full bg-destructive/80" />
+                  <div className="w-3 h-3 rounded-full bg-warning/80" />
+                  <div className="w-3 h-3 rounded-full bg-success/80" />
                 </div>
-                <div className="text-sm text-muted-foreground">TradeFlow Dashboard</div>
+                <div className="flex-1 flex justify-center">
+                  <div className="px-4 py-1 rounded-md bg-background/50 text-xs text-muted-foreground font-mono">
+                    tradeflow.app/dashboard
+                  </div>
+                </div>
               </div>
               
-              {/* Mock Dashboard Content */}
-              <div className="p-6 grid md:grid-cols-3 gap-6">
-                {/* Price Cards */}
+              {/* Dashboard Content Preview */}
+              <div className="p-6 grid grid-cols-2 md:grid-cols-4 gap-4">
+                {/* Stat Cards */}
                 {[
-                  { symbol: "BTC/USD", price: "43,250.00", change: "+2.45%", up: true },
-                  { symbol: "EUR/USD", price: "1.0842", change: "+0.12%", up: true },
-                  { symbol: "GOLD", price: "2,035.50", change: "-0.34%", up: false },
-                ].map((item) => (
-                  <div key={item.symbol} className="bg-secondary/30 rounded-xl p-4">
-                    <div className="text-sm text-muted-foreground mb-1">{item.symbol}</div>
-                    <div className="text-2xl font-bold font-display">${item.price}</div>
-                    <div className={`text-sm ${item.up ? 'text-success' : 'text-destructive'}`}>
-                      {item.change}
+                  { label: "Net Profit", value: "+$12,450", color: "text-success" },
+                  { label: "Active Projects", value: "3 Ongoing", color: "text-blue-400" },
+                  { label: "Sniper Status", value: "Online", color: "text-primary", pulse: true },
+                  { label: "Rank", value: "#4 Silver", color: "text-amber-400" },
+                ].map((stat, i) => (
+                  <motion.div
+                    key={stat.label}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 1 + i * 0.1 }}
+                    className="bg-secondary/30 rounded-xl p-4 border border-border/30"
+                  >
+                    <div className="text-xs text-muted-foreground mb-1">{stat.label}</div>
+                    <div className={`text-xl font-bold ${stat.color} flex items-center gap-2`}>
+                      {stat.value}
+                      {stat.pulse && <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />}
                     </div>
-                  </div>
+                  </motion.div>
                 ))}
               </div>
               
-              {/* Mock Chart */}
+              {/* Mini Chart */}
               <div className="px-6 pb-6">
-                <div className="bg-secondary/30 rounded-xl h-48 flex items-end justify-between px-4 pb-4 gap-1">
-                  {[40, 55, 45, 60, 50, 70, 65, 80, 75, 85, 78, 90].map((height, i) => (
+                <div className="bg-secondary/30 rounded-xl h-32 flex items-end justify-between px-4 pb-4 gap-1 border border-border/30">
+                  {[30, 45, 35, 55, 40, 65, 55, 75, 60, 80, 70, 85, 75, 90].map((height, i) => (
                     <motion.div
                       key={i}
                       initial={{ height: 0 }}
                       animate={{ height: `${height}%` }}
-                      transition={{ delay: 0.8 + i * 0.05, duration: 0.5 }}
-                      className="flex-1 bg-gradient-to-t from-primary to-accent rounded-t"
+                      transition={{ delay: 1.2 + i * 0.03, duration: 0.4 }}
+                      className="flex-1 bg-gradient-to-t from-primary to-primary/50 rounded-t"
                     />
                   ))}
                 </div>
