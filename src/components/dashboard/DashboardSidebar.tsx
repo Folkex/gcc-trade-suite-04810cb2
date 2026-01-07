@@ -28,6 +28,7 @@ interface NavItem {
 const navItems: NavItem[] = [
   { title: "Dashboard", icon: LayoutDashboard, path: "/dashboard" },
   { title: "Market Sniper", icon: Crosshair, path: "/market-sniper" },
+  { title: "Copy Trading", icon: Wallet, path: "/copy-trading" },
   { title: "Gem Finder", icon: Sparkles, path: "/gem-finder" },
   { title: "Whale Watch", icon: Wallet, path: "/whale-watch" },
   { title: "Scanner", icon: Shield, path: "/scanner" },

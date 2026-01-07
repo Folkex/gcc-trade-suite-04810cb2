@@ -17,6 +17,8 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import CommandPalette from "@/components/command/CommandPalette";
 import GasTracker from "@/components/crypto/GasTracker";
+import WalletOverview from "@/components/wallet/WalletOverview";
+import PanicButton from "@/components/safety/PanicButton";
 
 interface DashboardTopbarProps {
   onMenuClick: () => void;
@@ -91,7 +93,9 @@ const DashboardTopbar = ({ onMenuClick }: DashboardTopbarProps) => {
         </div>
 
         <div className="flex items-center gap-2">
+          <WalletOverview onWithdraw={() => navigate("/wallet")} />
           <GasTracker />
+          <PanicButton />
           
           <DropdownMenu>
             <DropdownMenuTrigger asChild>

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { User, Shield, CreditCard, Bell, Camera, Check, Users, History } from "lucide-react";
+import { User, Shield, CreditCard, Bell, Camera, Check, Users, History, Wallet, AlertTriangle } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -13,6 +13,9 @@ import { Separator } from "@/components/ui/separator";
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
 import TeamSettings from "@/components/settings/TeamSettings";
 import AuditLog from "@/components/settings/AuditLog";
+import DangerZone from "@/components/settings/DangerZone";
+import SafetyTriggers from "@/components/safety/SafetyTriggers";
+import MultiWalletManager from "@/components/wallet/MultiWalletManager";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 
@@ -119,6 +122,14 @@ const DashboardSettings = () => {
             <TabsTrigger value="audit" className="gap-2 data-[state=active]:bg-primary/10">
               <History className="h-4 w-4" />
               Audit Log
+            </TabsTrigger>
+            <TabsTrigger value="wallets" className="gap-2 data-[state=active]:bg-primary/10">
+              <Wallet className="h-4 w-4" />
+              Wallets
+            </TabsTrigger>
+            <TabsTrigger value="safety" className="gap-2 data-[state=active]:bg-primary/10">
+              <AlertTriangle className="h-4 w-4" />
+              Safety
             </TabsTrigger>
           </TabsList>
 
@@ -445,6 +456,19 @@ const DashboardSettings = () => {
           {/* Audit Log Tab */}
           <TabsContent value="audit">
             <AuditLog />
+          </TabsContent>
+
+          {/* Wallets Tab */}
+          <TabsContent value="wallets">
+            <MultiWalletManager />
+          </TabsContent>
+
+          {/* Safety Tab */}
+          <TabsContent value="safety">
+            <div className="space-y-6">
+              <SafetyTriggers />
+              <DangerZone />
+            </div>
           </TabsContent>
         </Tabs>
       </motion.div>
