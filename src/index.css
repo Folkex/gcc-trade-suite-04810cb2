@@ -63,56 +63,56 @@
   }
 
   .dark {
-    --background: 220 25% 4%;
-    --foreground: 0 0% 95%;
+    --background: 220 30% 3%;
+    --foreground: 0 0% 98%;
 
-    --card: 220 25% 6%;
-    --card-foreground: 0 0% 95%;
+    --card: 220 30% 6%;
+    --card-foreground: 0 0% 98%;
 
-    --popover: 220 25% 6%;
-    --popover-foreground: 0 0% 95%;
+    --popover: 220 30% 6%;
+    --popover-foreground: 0 0% 98%;
 
-    --primary: 142 76% 50%;
+    --primary: 158 100% 50%;
     --primary-foreground: 0 0% 0%;
 
-    --secondary: 220 25% 10%;
-    --secondary-foreground: 0 0% 95%;
+    --secondary: 220 30% 10%;
+    --secondary-foreground: 0 0% 98%;
 
-    --muted: 220 25% 10%;
-    --muted-foreground: 220 10% 55%;
+    --muted: 220 30% 12%;
+    --muted-foreground: 220 10% 50%;
 
-    --accent: 142 76% 50%;
+    --accent: 158 100% 50%;
     --accent-foreground: 0 0% 0%;
 
-    --destructive: 0 72% 55%;
+    --destructive: 0 85% 60%;
     --destructive-foreground: 0 0% 100%;
 
-    --success: 142 76% 50%;
+    --success: 158 100% 50%;
     --success-foreground: 0 0% 0%;
 
     --warning: 38 92% 50%;
     --warning-foreground: 0 0% 0%;
 
-    --border: 220 25% 12%;
-    --input: 220 25% 12%;
-    --ring: 142 76% 50%;
+    --border: 220 30% 12%;
+    --input: 220 30% 12%;
+    --ring: 158 100% 50%;
 
     /* Trading specific colors */
-    --chart-up: 142 76% 50%;
-    --chart-down: 0 72% 55%;
-    --neon-green: 142 76% 55%;
-    --neon-red: 0 72% 55%;
-    --terminal-bg: 220 25% 4%;
+    --chart-up: 158 100% 50%;
+    --chart-down: 0 85% 60%;
+    --neon-green: 158 100% 50%;
+    --neon-red: 0 85% 60%;
+    --terminal-bg: 220 30% 3%;
 
     /* Sidebar */
-    --sidebar-background: 220 25% 5%;
-    --sidebar-foreground: 0 0% 95%;
-    --sidebar-primary: 142 76% 50%;
+    --sidebar-background: 220 30% 5%;
+    --sidebar-foreground: 0 0% 98%;
+    --sidebar-primary: 158 100% 50%;
     --sidebar-primary-foreground: 0 0% 0%;
-    --sidebar-accent: 220 25% 10%;
-    --sidebar-accent-foreground: 0 0% 95%;
-    --sidebar-border: 220 25% 12%;
-    --sidebar-ring: 142 76% 50%;
+    --sidebar-accent: 220 30% 10%;
+    --sidebar-accent-foreground: 0 0% 98%;
+    --sidebar-border: 220 30% 12%;
+    --sidebar-ring: 158 100% 50%;
   }
 }
 
@@ -142,31 +142,40 @@
   }
 
   .glass {
-    @apply bg-card/90 backdrop-blur-xl;
+    @apply bg-white/[0.03] backdrop-blur-xl border border-white/[0.08];
+  }
+
+  .glass-card {
+    @apply bg-white/[0.02] backdrop-blur-xl border border-white/[0.06] rounded-2xl;
   }
 
   .glass-border {
-    @apply border border-border/50;
+    @apply border border-white/[0.08];
   }
 
   .terminal-card {
-    @apply bg-card border border-border/50 rounded-lg;
+    @apply bg-card border border-border/50 rounded-xl;
   }
 
   .neon-glow {
-    box-shadow: 0 0 20px hsl(var(--neon-green) / 0.3);
+    box-shadow: 0 0 30px hsl(var(--neon-green) / 0.4), 0 0 60px hsl(var(--neon-green) / 0.2);
+  }
+
+  .neon-glow-soft {
+    box-shadow: 0 0 20px hsl(var(--neon-green) / 0.15);
   }
 
   .neon-glow-red {
     box-shadow: 0 0 20px hsl(var(--neon-red) / 0.3);
   }
 
-  .terminal-text {
-    @apply font-mono tracking-tight;
+  .aurora-bg {
+    background: radial-gradient(ellipse 80% 50% at 50% -20%, hsl(158 100% 50% / 0.15), transparent),
+                radial-gradient(ellipse 60% 40% at 80% 0%, hsl(280 80% 50% / 0.1), transparent);
   }
 
-  .ticker-scroll {
-    animation: ticker 30s linear infinite;
+  .aurora-glow {
+    background: radial-gradient(ellipse 100% 100% at 50% 50%, hsl(158 100% 50% / 0.08), transparent);
   }
 
   @keyframes ticker {
