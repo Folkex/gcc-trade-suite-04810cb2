@@ -10,11 +10,17 @@ import {
   ExternalLink, 
   RefreshCw,
   Globe,
-  AlertCircle
+  AlertCircle,
+  Database
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
+import { 
+  fetchGlobalMarketData, 
+  StandardizedAsset, 
+  DataSource 
+} from "@/lib/fetchGlobalMarketData";
 
 // ============================================
 // SYMBOL TO ADDRESS MAPPING - The Bridge
@@ -62,72 +68,58 @@ export const getTradeableAddress = (symbol: string): { address: string; chain: s
   return SYMBOL_TO_ADDRESS[upperSymbol] || null;
 };
 
-export interface CoinCapAsset {
-  id: string;
-  rank: string;
-  symbol: string;
-  name: string;
-  supply: string;
-  maxSupply: string | null;
-  marketCapUsd: string;
-  volumeUsd24Hr: string;
-  priceUsd: string;
-  changePercent24Hr: string;
-  vwap24Hr: string;
-}
-
 interface GlobalLeaderboardProps {
   limit?: number;
   compact?: boolean;
   showHeader?: boolean;
 }
 
-const formatPrice = (price: string | number) => {
-  const p = typeof price === "string" ? parseFloat(price) : price;
-  if (isNaN(p) || p === 0) return "$0.00";
-  if (p < 0.00001) return `$${p.toExponential(2)}`;
-  if (p < 0.01) return `$${p.toFixed(6)}`;
-  if (p < 1) return `$${p.toFixed(4)}`;
-  if (p < 1000) return `$${p.toFixed(2)}`;
-  return `$${p.toLocaleString(undefined, { maximumFractionDigits: 2 })}`;
+const formatPrice = (price: number) => {
+  if (isNaN(price) || price === 0) return "$0.00";
+  if (price < 0.00001) return `$${price.toExponential(2)}`;
+  if (price < 0.01) return `$${price.toFixed(6)}`;
+  if (price < 1) return `$${price.toFixed(4)}`;
+  if (price < 1000) return `$${price.toFixed(2)}`;
+  return `$${price.toLocaleString(undefined, { maximumFractionDigits: 2 })}`;
 };
 
-const formatMarketCap = (value: string | number) => {
-  const v = typeof value === "string" ? parseFloat(value) : value;
-  if (isNaN(v) || v === 0) return "—";
-  if (v >= 1e12) return `$${(v / 1e12).toFixed(2)}T`;
-  if (v >= 1e9) return `$${(v / 1e9).toFixed(2)}B`;
-  if (v >= 1e6) return `$${(v / 1e6).toFixed(2)}M`;
-  return `$${v.toLocaleString(undefined, { maximumFractionDigits: 0 })}`;
+const formatMarketCap = (value: number) => {
+  if (isNaN(value) || value === 0) return "—";
+  if (value >= 1e12) return `$${(value / 1e12).toFixed(2)}T`;
+  if (value >= 1e9) return `$${(value / 1e9).toFixed(2)}B`;
+  if (value >= 1e6) return `$${(value / 1e6).toFixed(2)}M`;
+  return `$${value.toLocaleString(undefined, { maximumFractionDigits: 0 })}`;
+};
+
+// Source badge color mapping
+const getSourceColor = (source: DataSource) => {
+  switch (source) {
+    case "CoinGecko": return "text-green-400 border-green-400/30";
+    case "CoinCap": return "text-blue-400 border-blue-400/30";
+    case "CoinPaprika": return "text-orange-400 border-orange-400/30";
+    case "Cached": return "text-yellow-400 border-yellow-400/30";
+    default: return "text-muted-foreground border-border";
+  }
 };
 
 const GlobalLeaderboard = ({ limit = 50, compact = false, showHeader = true }: GlobalLeaderboardProps) => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const [assets, setAssets] = useState<CoinCapAsset[]>([]);
+  const [assets, setAssets] = useState<StandardizedAsset[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
+  const [dataSource, setDataSource] = useState<DataSource>("CoinCap");
 
-  const fetchGlobalTop50 = useCallback(async () => {
+  const fetchData = useCallback(async () => {
     try {
-      const response = await fetch(`https://api.coincap.io/v2/assets?limit=${limit}`);
-      
-      if (!response.ok) {
-        throw new Error(`CoinCap API returned ${response.status}`);
-      }
-      
-      const data = await response.json();
-      
-      if (data.data && Array.isArray(data.data)) {
-        setAssets(data.data);
-        setError(null);
-        setLastUpdated(new Date());
-      } else {
-        throw new Error("Invalid response format");
-      }
+      const result = await fetchGlobalMarketData(limit);
+      setAssets(result.data);
+      setDataSource(result.source);
+      setLastUpdated(result.timestamp);
+      setError(null);
     } catch (err) {
-      console.error("❌ [GlobalLeaderboard] Fetch error:", err);
+      console.error("❌ [GlobalLeaderboard] All APIs failed:", err);
       setError(err instanceof Error ? err.message : "Failed to fetch data");
     } finally {
       setLoading(false);
@@ -136,19 +128,19 @@ const GlobalLeaderboard = ({ limit = 50, compact = false, showHeader = true }: G
 
   // Initial fetch and 15-second polling
   useEffect(() => {
-    console.log("🌐 [GlobalLeaderboard] Starting polling (15s interval)");
-    fetchGlobalTop50();
+    console.log("🌐 [GlobalLeaderboard] Starting multi-API polling (15s interval)");
+    fetchData();
 
     const interval = setInterval(() => {
-      fetchGlobalTop50();
+      fetchData();
     }, 15000);
 
     return () => {
       clearInterval(interval);
     };
-  }, [fetchGlobalTop50]);
+  }, [fetchData]);
 
-  const handleAssetClick = (asset: CoinCapAsset) => {
+  const handleAssetClick = (asset: StandardizedAsset) => {
     const tradeable = getTradeableAddress(asset.symbol);
     
     if (tradeable) {
@@ -156,7 +148,7 @@ const GlobalLeaderboard = ({ limit = 50, compact = false, showHeader = true }: G
     } else {
       toast({
         title: "Chart View Only",
-        description: `${asset.name} (${asset.symbol}) is not available for DEX trading. View on CoinCap instead.`,
+        description: `${asset.name} (${asset.symbol}) is not available for DEX trading.`,
         action: (
           <Button
             variant="outline"
@@ -226,8 +218,8 @@ const GlobalLeaderboard = ({ limit = 50, compact = false, showHeader = true }: G
         )}
         <CardContent className="py-12 text-center">
           <AlertCircle className="h-8 w-8 text-destructive mx-auto mb-3" />
-          <p className="text-muted-foreground mb-4">{error}</p>
-          <Button variant="outline" onClick={() => fetchGlobalTop50()}>
+          <p className="text-muted-foreground mb-4 text-sm">{error}</p>
+          <Button variant="outline" onClick={() => fetchData()}>
             <RefreshCw className="h-4 w-4 mr-2" />
             Retry
           </Button>
@@ -244,9 +236,9 @@ const GlobalLeaderboard = ({ limit = 50, compact = false, showHeader = true }: G
             <CardTitle className="flex items-center gap-2 text-lg">
               <Crown className="h-5 w-5 text-amber-500" />
               Global Market Leaderboard
-              <Badge variant="outline" className="ml-2 text-[10px] font-normal">
-                <Globe className="h-3 w-3 mr-1" />
-                CoinCap
+              <Badge variant="outline" className={`ml-2 text-[10px] font-normal ${getSourceColor(dataSource)}`}>
+                <Database className="h-3 w-3 mr-1" />
+                {dataSource}
               </Badge>
             </CardTitle>
             {lastUpdated && (
@@ -272,7 +264,7 @@ const GlobalLeaderboard = ({ limit = 50, compact = false, showHeader = true }: G
         <div className="divide-y divide-border/30 max-h-[600px] overflow-y-auto">
           <AnimatePresence mode="popLayout">
             {assets.slice(0, compact ? 10 : limit).map((asset, index) => {
-              const change = parseFloat(asset.changePercent24Hr);
+              const change = asset.priceChange24h;
               const isPositive = change >= 0;
               const tradeable = getTradeableAddress(asset.symbol);
               
@@ -289,7 +281,7 @@ const GlobalLeaderboard = ({ limit = 50, compact = false, showHeader = true }: G
                   {/* Rank */}
                   <div className="col-span-1 flex items-center">
                     <span className={`text-sm font-bold ${
-                      parseInt(asset.rank) <= 3 ? "text-amber-500" : "text-muted-foreground"
+                      asset.rank <= 3 ? "text-amber-500" : "text-muted-foreground"
                     }`}>
                       {asset.rank}
                     </span>
@@ -320,7 +312,7 @@ const GlobalLeaderboard = ({ limit = 50, compact = false, showHeader = true }: G
                   {/* Price */}
                   <div className="col-span-2 flex items-center justify-end">
                     <span className="font-mono text-sm font-medium">
-                      {formatPrice(asset.priceUsd)}
+                      {formatPrice(asset.price)}
                     </span>
                   </div>
 
@@ -341,7 +333,7 @@ const GlobalLeaderboard = ({ limit = 50, compact = false, showHeader = true }: G
                   {/* Market Cap */}
                   <div className={`${compact ? "col-span-2" : "col-span-3"} hidden sm:flex items-center justify-end gap-2`}>
                     <span className="font-mono text-sm text-muted-foreground">
-                      {formatMarketCap(asset.marketCapUsd)}
+                      {formatMarketCap(asset.marketCap)}
                     </span>
                     <ExternalLink className="h-3.5 w-3.5 opacity-0 group-hover:opacity-50 transition-opacity" />
                   </div>
