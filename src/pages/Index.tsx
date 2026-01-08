@@ -48,18 +48,6 @@ const Header = () => {
         <span className="font-bold text-xl font-mono text-foreground hidden sm:block">Arbah.co</span>
       </Link>
 
-      {/* Nav Links - Desktop */}
-      <nav className="hidden md:flex items-center gap-6">
-        <Link to="/markets" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-          Markets
-        </Link>
-        <Link to="/trade" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-          Trade
-        </Link>
-        <Link to="/market-sniper" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-          Sniper
-        </Link>
-      </nav>
 
       {/* Auth Buttons */}
       <div className="flex items-center gap-2">
