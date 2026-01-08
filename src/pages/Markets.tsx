@@ -16,10 +16,12 @@ import {
   Sparkles,
   ArrowUpDown,
   ExternalLink,
-  RefreshCw
+  RefreshCw,
+  Globe
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
+import GlobalLeaderboard from "@/components/crypto/GlobalLeaderboard";
 
 const formatPrice = (price: number) => {
   if (price === 0) return "$0.00";
@@ -55,7 +57,7 @@ const Markets = () => {
   const { majorTokens, trendingTokens, newTokens, loadingMajor, loading, refresh, lastUpdated } = useMarket();
   
   const [searchQuery, setSearchQuery] = useState("");
-  const [activeTab, setActiveTab] = useState<"major" | "trending" | "new">("major");
+  const [activeTab, setActiveTab] = useState<"global" | "major" | "trending" | "new">("global");
   const [sortField, setSortField] = useState<SortField>("marketCap");
   const [sortDirection, setSortDirection] = useState<SortDirection>("desc");
 
@@ -135,7 +137,7 @@ const Markets = () => {
     </button>
   );
 
-  const isLoading = activeTab === "major" ? loadingMajor : loading;
+  const isLoading = activeTab === "major" ? loadingMajor : activeTab === "global" ? false : loading;
 
   return (
     <DashboardLayout>
@@ -168,9 +170,13 @@ const Markets = () => {
         <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as any)}>
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <TabsList className="bg-secondary/50">
+              <TabsTrigger value="global" className="gap-2">
+                <Globe className="h-4 w-4" />
+                Global Top 50
+              </TabsTrigger>
               <TabsTrigger value="major" className="gap-2">
                 <Crown className="h-4 w-4" />
-                Major ({majorTokens.length})
+                DEX Major ({majorTokens.length})
               </TabsTrigger>
               <TabsTrigger value="trending" className="gap-2">
                 <Flame className="h-4 w-4" />
@@ -194,7 +200,15 @@ const Markets = () => {
             </div>
           </div>
 
-          {/* Token List */}
+          {/* Global Leaderboard (CoinCap) */}
+          {activeTab === "global" && (
+            <div className="mt-4">
+              <GlobalLeaderboard limit={50} showHeader={false} />
+            </div>
+          )}
+
+          {/* DEX Token List */}
+          {activeTab !== "global" && (
           <Card className="mt-4 border-border/50 bg-card/50">
             <CardContent className="p-0">
               {/* Table Header */}
@@ -344,6 +358,7 @@ const Markets = () => {
               </div>
             </CardContent>
           </Card>
+          )}
         </Tabs>
       </div>
     </DashboardLayout>
