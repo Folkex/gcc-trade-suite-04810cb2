@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Menu, X, Globe } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "@/contexts/AuthContext";
+import LivePriceTicker from "./LivePriceTicker";
 
 interface HeaderProps {
   lang: "en" | "ar";
@@ -36,9 +37,14 @@ const Header = ({ lang, onLangChange }: HeaderProps) => {
   const isRTL = lang === "ar";
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 glass glass-border">
-      <div className="container mx-auto px-4">
-        <div className="flex items-center justify-between h-16" dir={isRTL ? "rtl" : "ltr"}>
+    <header className="fixed top-0 left-0 right-0 z-50">
+      {/* Live Price Ticker */}
+      <LivePriceTicker />
+      
+      {/* Main Header */}
+      <div className="glass glass-border">
+        <div className="container mx-auto px-4">
+          <div className="flex items-center justify-between h-16" dir={isRTL ? "rtl" : "ltr"}>
           {/* Logo */}
           <motion.div 
             initial={{ opacity: 0, x: isRTL ? 20 : -20 }}
@@ -102,6 +108,7 @@ const Header = ({ lang, onLangChange }: HeaderProps) => {
           >
             {isMobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
           </Button>
+          </div>
         </div>
       </div>
 
