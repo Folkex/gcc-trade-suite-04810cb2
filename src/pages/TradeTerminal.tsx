@@ -51,7 +51,8 @@ import {
 } from "@/components/ui/table";
 import { Skeleton } from "@/components/ui/skeleton";
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
-import { useDexScreenerToken, DexScreenerPair } from "@/hooks/useDexScreener";
+import { useDexScreenerToken } from "@/hooks/useDexScreener";
+import { useMarket, DexScreenerPair } from "@/contexts/MarketContext";
 import { useDexScreenerRealtime } from "@/hooks/useDexScreenerWebSocket";
 import { TokenSearchBar } from "@/components/trade/TokenSearchBar";
 
@@ -117,8 +118,14 @@ const mockPositions = [
 const TradeTerminal = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const tokenAddress = searchParams.get("token");
+  const urlTokenAddress = searchParams.get("token");
   const chainId = searchParams.get("chain") || "solana";
+  
+  // Get trending token from global market context
+  const { trendingToken, isLive: marketIsLive } = useMarket();
+  
+  // Use URL token if provided, otherwise default to trending token
+  const tokenAddress = urlTokenAddress || trendingToken?.tokenAddress || null;
   
   // Fetch real token data from DexScreener
   const { token: dexToken, loading, error, refresh } = useDexScreenerToken(tokenAddress, chainId);
@@ -233,8 +240,8 @@ const TradeTerminal = () => {
           </div>
         )}
 
-        {/* No Token Selected - Show search */}
-        {!tokenAddress && !loading && (
+        {/* No Token Selected - Show search (only when no URL param AND no trending token) */}
+        {!urlTokenAddress && !trendingToken && !loading && (
           <div className="flex items-center justify-center h-64">
             <div className="text-center w-full max-w-md px-4">
               <BarChart3 className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
@@ -243,7 +250,7 @@ const TradeTerminal = () => {
                 Search for a token or go to the Sniper Board
               </p>
               <TokenSearchBar onTokenSelect={handleTokenSelect} className="mb-4" />
-              <Button onClick={() => navigate("/sniper")} variant="outline" size="sm">
+              <Button onClick={() => navigate("/market-sniper")} variant="outline" size="sm">
                 Go to Sniper Board
               </Button>
             </div>
