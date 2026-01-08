@@ -17,31 +17,42 @@ const metadata = {
 // Define the networks
 const networks = [mainnet, bsc, arbitrum, polygon] as const;
 
-// Create Wagmi Adapter
+// Create Wagmi Adapter with explicit config
 export const wagmiAdapter = new WagmiAdapter({
   networks: networks as any,
   projectId,
   ssr: false,
 });
 
-// Create the modal
-export const appKit = createAppKit({
-  adapters: [wagmiAdapter],
-  networks: networks as any,
-  projectId,
-  metadata,
-  features: {
-    analytics: true,
-    email: false,
-    socials: false,
-  },
-  themeMode: 'dark',
-  themeVariables: {
-    '--w3m-color-mix': '#00ff88',
-    '--w3m-color-mix-strength': 20,
-    '--w3m-accent': '#00ff88',
-    '--w3m-border-radius-master': '8px',
-  },
-});
-
+// Get wagmi config before creating AppKit
 export const wagmiConfig = wagmiAdapter.wagmiConfig;
+
+// Create the modal - must be called after wagmiAdapter is fully initialized
+let appKitInstance: ReturnType<typeof createAppKit> | null = null;
+
+export const getAppKit = () => {
+  if (!appKitInstance) {
+    appKitInstance = createAppKit({
+      adapters: [wagmiAdapter],
+      networks: networks as any,
+      projectId,
+      metadata,
+      features: {
+        analytics: true,
+        email: false,
+        socials: false,
+      },
+      themeMode: 'dark',
+      themeVariables: {
+        '--w3m-color-mix': '#00ff88',
+        '--w3m-color-mix-strength': 20,
+        '--w3m-accent': '#00ff88',
+        '--w3m-border-radius-master': '8px',
+      },
+    });
+  }
+  return appKitInstance;
+};
+
+// Initialize immediately
+export const appKit = getAppKit();
