@@ -5,6 +5,7 @@ import { Menu, X, Globe } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "@/contexts/AuthContext";
 import LivePriceTicker from "./LivePriceTicker";
+import ConnectWalletButton from "@/components/wallet/ConnectWalletButton";
 
 interface HeaderProps {
   lang: "en" | "ar";
@@ -89,8 +90,12 @@ const Header = ({ lang, onLangChange }: HeaderProps) => {
                 <Globe className="h-4 w-4" />
                 <span className="text-xs">{lang === "en" ? "AR" : "EN"}</span>
               </Button>
+              
+              {/* Wallet Connect Button */}
+              <ConnectWalletButton variant="compact" />
+              
               {user ? (
-                <Button asChild size="sm" className="bg-gradient-to-r from-primary to-accent hover:opacity-90 transition-opacity rounded-lg">
+                <Button asChild size="sm" variant="outline" className="rounded-lg border-primary/30">
                   <Link to="/dashboard">Dashboard</Link>
                 </Button>
               ) : (
@@ -138,6 +143,9 @@ const Header = ({ lang, onLangChange }: HeaderProps) => {
                 </a>
               ))}
               <div className="flex flex-col gap-2 pt-4 border-t border-border">
+                {/* Mobile Wallet Connect */}
+                <ConnectWalletButton />
+                
                 <Button
                   variant="outline"
                   onClick={() => onLangChange(lang === "en" ? "ar" : "en")}

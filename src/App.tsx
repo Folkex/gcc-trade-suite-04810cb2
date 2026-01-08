@@ -5,6 +5,8 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { MarketProvider } from "@/contexts/MarketContext";
+import { Web3Provider } from "@/providers/Web3Provider";
+
 // Landing & Auth
 import Index from "./pages/Index";
 import Login from "./pages/Login";
@@ -53,62 +55,64 @@ const queryClient = new QueryClient();
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <AuthProvider>
-          <MarketProvider>
-          <Toaster />
-          <Sonner />
-            <BrowserRouter>
-              <Routes>
-                {/* Landing & Auth */}
-                <Route path="/" element={<Index />} />
-                <Route path="/login" element={<Login />} />
-                <Route path="/signup" element={<Signup />} />
-                <Route path="/forgot-password" element={<ForgotPassword />} />
-                <Route path="/update-password" element={<UpdatePassword />} />
+      <Web3Provider>
+        <TooltipProvider>
+          <AuthProvider>
+            <MarketProvider>
+              <Toaster />
+              <Sonner />
+              <BrowserRouter>
+                <Routes>
+                  {/* Landing & Auth */}
+                  <Route path="/" element={<Index />} />
+                  <Route path="/login" element={<Login />} />
+                  <Route path="/signup" element={<Signup />} />
+                  <Route path="/forgot-password" element={<ForgotPassword />} />
+                  <Route path="/update-password" element={<UpdatePassword />} />
 
-                {/* Core Section */}
-                <Route path="/dashboard" element={<DashboardOverview />} />
-                <Route path="/dashboard/analytics" element={<DashboardAnalytics />} />
-                <Route path="/dashboard/settings" element={<DashboardSettings />} />
-                <Route path="/projects" element={<Projects />} />
-                <Route path="/team" element={<Team />} />
-                <Route path="/notifications" element={<Notifications />} />
+                  {/* Core Section */}
+                  <Route path="/dashboard" element={<DashboardOverview />} />
+                  <Route path="/dashboard/analytics" element={<DashboardAnalytics />} />
+                  <Route path="/dashboard/settings" element={<DashboardSettings />} />
+                  <Route path="/projects" element={<Projects />} />
+                  <Route path="/team" element={<Team />} />
+                  <Route path="/notifications" element={<Notifications />} />
 
-                {/* Terminal Section (Crypto) */}
-                <Route path="/market-sniper" element={<MarketSniper />} />
-                <Route path="/scanner" element={<Scanner />} />
-                <Route path="/whale-watch" element={<WhaleWatch />} />
-                <Route path="/copy-trading" element={<CopyTrading />} />
-                <Route path="/gem-finder" element={<GemFinder />} />
-                <Route path="/token/:id" element={<TokenAnalyzer />} />
-                <Route path="/trade" element={<TradeTerminal />} />
-                <Route path="/markets" element={<Markets />} />
+                  {/* Terminal Section (Crypto) */}
+                  <Route path="/market-sniper" element={<MarketSniper />} />
+                  <Route path="/scanner" element={<Scanner />} />
+                  <Route path="/whale-watch" element={<WhaleWatch />} />
+                  <Route path="/copy-trading" element={<CopyTrading />} />
+                  <Route path="/gem-finder" element={<GemFinder />} />
+                  <Route path="/token/:id" element={<TokenAnalyzer />} />
+                  <Route path="/trade" element={<TradeTerminal />} />
+                  <Route path="/markets" element={<Markets />} />
 
-                {/* Finance Section */}
-                <Route path="/wallet" element={<Wallet />} />
-                <Route path="/transactions" element={<Transactions />} />
+                  {/* Finance Section */}
+                  <Route path="/wallet" element={<Wallet />} />
+                  <Route path="/transactions" element={<Transactions />} />
 
-                {/* Growth Section */}
-                <Route path="/referrals" element={<Referrals />} />
-                <Route path="/leaderboard" element={<Leaderboard />} />
+                  {/* Growth Section */}
+                  <Route path="/referrals" element={<Referrals />} />
+                  <Route path="/leaderboard" element={<Leaderboard />} />
 
-                {/* Settings Section */}
-                <Route path="/settings/profile" element={<Profile />} />
-                <Route path="/settings/security" element={<Security />} />
-                <Route path="/support" element={<Support />} />
-                <Route path="/help" element={<HelpSupport />} />
+                  {/* Settings Section */}
+                  <Route path="/settings/profile" element={<Profile />} />
+                  <Route path="/settings/security" element={<Security />} />
+                  <Route path="/support" element={<Support />} />
+                  <Route path="/help" element={<HelpSupport />} />
 
-                {/* Legal Pages */}
-                <Route path="/legal/:type" element={<LegalPage />} />
+                  {/* Legal Pages */}
+                  <Route path="/legal/:type" element={<LegalPage />} />
 
-              {/* Catch-all */}
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-            </BrowserRouter>
-          </MarketProvider>
-        </AuthProvider>
-      </TooltipProvider>
+                  {/* Catch-all */}
+                  <Route path="*" element={<NotFound />} />
+                </Routes>
+              </BrowserRouter>
+            </MarketProvider>
+          </AuthProvider>
+        </TooltipProvider>
+      </Web3Provider>
     </QueryClientProvider>
   );
 }
