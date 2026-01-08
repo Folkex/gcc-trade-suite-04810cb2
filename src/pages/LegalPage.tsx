@@ -13,7 +13,6 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import DashboardLayout from "@/components/dashboard/DashboardLayout";
 
 const legalContent = {
   terms: {
@@ -281,8 +280,8 @@ const LegalPage = () => {
   const IconComponent = pageData.icon;
 
   return (
-    <DashboardLayout>
-      <div className="max-w-4xl mx-auto">
+    <div className="min-h-screen bg-background">
+      <div className="max-w-4xl mx-auto px-4 py-8">
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -294,9 +293,9 @@ const LegalPage = () => {
             asChild
             className="mb-4 text-muted-foreground hover:text-foreground"
           >
-            <Link to="/dashboard">
+            <Link to="/">
               <ArrowLeft className="h-4 w-4 mr-2" />
-              Back to Dashboard
+              Back to Home
             </Link>
           </Button>
           
@@ -424,7 +423,7 @@ const LegalPage = () => {
           </div>
         </motion.div>
       </div>
-    </DashboardLayout>
+    </div>
   );
 };
 
