@@ -43,7 +43,7 @@ const HeroSection = ({ lang }: HeroSectionProps) => {
   const isRTL = lang === "ar";
 
   return (
-    <section className="relative min-h-screen flex items-center pt-20 overflow-hidden">
+    <section className="relative min-h-[90vh] flex items-center overflow-hidden">
       {/* Animated Background */}
       <div className="absolute inset-0">
         <div className="absolute inset-0 bg-gradient-to-br from-background via-background to-primary/5" />
