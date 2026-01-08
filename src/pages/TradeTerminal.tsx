@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { motion } from "framer-motion";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import {
@@ -16,6 +16,8 @@ import {
   Activity,
   Target,
   Percent,
+  Loader2,
+  RefreshCw,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -46,15 +48,9 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { Skeleton } from "@/components/ui/skeleton";
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
-
-// Mock token data
-const mockTokens: Record<string, TokenData> = {
-  "1": { id: "1", name: "NeuralAI", symbol: "NRAI", price: 0.00234, change24h: 345.2, volume24h: 1250000, marketCap: 4500000, chain: "SOL" },
-  "2": { id: "2", name: "MoonDoge", symbol: "MDOGE", price: 0.000045, change24h: -45.8, volume24h: 85000, marketCap: 120000, chain: "ETH" },
-  "3": { id: "3", name: "SolanaGem", symbol: "SGEM", price: 1.234, change24h: 567.4, volume24h: 8900000, marketCap: 45000000, chain: "SOL" },
-  "default": { id: "default", name: "Pepe", symbol: "PEPE", price: 0.00001234, change24h: 12.5, volume24h: 125000000, marketCap: 890000000, chain: "ETH" },
-};
+import { useDexScreenerToken, DexScreenerPair } from "@/hooks/useDexScreener";
 
 interface TokenData {
   id: string;
@@ -65,18 +61,32 @@ interface TokenData {
   volume24h: number;
   marketCap: number;
   chain: string;
+  tokenAddress?: string;
+  liquidity?: number;
 }
 
+// Default token data when no token is selected
+const DEFAULT_TOKEN: TokenData = {
+  id: "default",
+  name: "Select a Token",
+  symbol: "---",
+  price: 0,
+  change24h: 0,
+  volume24h: 0,
+  marketCap: 0,
+  chain: "SOL",
+};
+
 // Order Book Data
-const generateOrderBook = () => {
+const generateOrderBook = (basePrice: number) => {
   const asks = Array.from({ length: 10 }, (_, i) => ({
-    price: 0.00234 + (i + 1) * 0.00001,
+    price: basePrice + (i + 1) * (basePrice * 0.005),
     amount: Math.random() * 50000 + 10000,
     total: 0,
   })).reverse();
   
   const bids = Array.from({ length: 10 }, (_, i) => ({
-    price: 0.00234 - (i + 1) * 0.00001,
+    price: basePrice - (i + 1) * (basePrice * 0.005),
     amount: Math.random() * 50000 + 10000,
     total: 0,
   }));
@@ -85,10 +95,10 @@ const generateOrderBook = () => {
 };
 
 // Recent Trades
-const generateRecentTrades = () => 
+const generateRecentTrades = (basePrice: number) => 
   Array.from({ length: 15 }, (_, i) => ({
     id: i,
-    price: 0.00234 + (Math.random() - 0.5) * 0.0001,
+    price: basePrice + (Math.random() - 0.5) * (basePrice * 0.02),
     amount: Math.random() * 10000 + 1000,
     time: new Date(Date.now() - i * 15000),
     isBuy: Math.random() > 0.5,
@@ -104,11 +114,31 @@ const mockPositions = [
 const TradeTerminal = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const tokenId = searchParams.get("token") || "default";
-  const token = mockTokens[tokenId] || mockTokens["default"];
+  const tokenAddress = searchParams.get("token");
+  const chainId = searchParams.get("chain") || "solana";
   
-  const [orderBook] = useState(generateOrderBook());
-  const [recentTrades] = useState(generateRecentTrades());
+  // Fetch real token data from DexScreener
+  const { token: dexToken, loading, error, refresh } = useDexScreenerToken(tokenAddress, chainId);
+  
+  // Convert DexScreener token to our TokenData format
+  const token: TokenData = useMemo(() => {
+    if (!dexToken) return DEFAULT_TOKEN;
+    return {
+      id: dexToken.id,
+      name: dexToken.name,
+      symbol: dexToken.symbol,
+      price: dexToken.priceUsd,
+      change24h: dexToken.priceChange24h,
+      volume24h: dexToken.volume24h,
+      marketCap: dexToken.liquidity, // Using liquidity as a proxy for market cap
+      chain: dexToken.chain,
+      tokenAddress: dexToken.tokenAddress,
+      liquidity: dexToken.liquidity,
+    };
+  }, [dexToken]);
+  
+  const orderBook = useMemo(() => generateOrderBook(token.price || 0.001), [token.price]);
+  const recentTrades = useMemo(() => generateRecentTrades(token.price || 0.001), [token.price]);
   const [positions] = useState(mockPositions);
   
   const [tradeType, setTradeType] = useState<"buy" | "sell">("buy");
@@ -125,9 +155,10 @@ const TradeTerminal = () => {
   const [trailingStop, setTrailingStop] = useState(false);
   const [antiMev, setAntiMev] = useState(true);
   
-  const receiveAmount = parseFloat(payAmount || "0") / token.price;
+  const receiveAmount = token.price > 0 ? parseFloat(payAmount || "0") / token.price : 0;
   
   const formatPrice = (price: number) => {
+    if (price === 0) return "---";
     if (price < 0.0001) return price.toFixed(8);
     if (price < 1) return price.toFixed(6);
     return price.toFixed(4);
@@ -142,52 +173,113 @@ const TradeTerminal = () => {
   return (
     <DashboardLayout>
       <div className="min-h-screen">
-        {/* Terminal Header */}
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="mb-4"
-        >
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-            <div className="flex items-center gap-4">
-              <div className="h-12 w-12 rounded-lg bg-gradient-to-br from-primary to-primary/50 flex items-center justify-center">
-                <BarChart3 className="h-6 w-6 text-primary-foreground" />
-              </div>
-              <div>
-                <div className="flex items-center gap-2">
-                  <h1 className="text-2xl font-bold font-mono">
-                    {token.symbol}<span className="text-muted-foreground">/SOL</span>
-                  </h1>
-                  <Badge variant="outline" className="font-mono text-xs border-primary/30 text-primary">
-                    {token.chain}
-                  </Badge>
-                </div>
-                <p className="text-muted-foreground text-sm font-mono">{token.name}</p>
-              </div>
-            </div>
-            
-            {/* Price Display */}
-            <div className="flex items-center gap-6">
-              <div className="text-right">
-                <p className={`text-3xl font-bold font-mono ${token.change24h >= 0 ? 'text-success' : 'text-destructive'}`}>
-                  ${formatPrice(token.price)}
-                </p>
-                <div className={`flex items-center gap-1 justify-end ${token.change24h >= 0 ? 'text-success' : 'text-destructive'}`}>
-                  {token.change24h >= 0 ? <TrendingUp className="h-4 w-4" /> : <TrendingDown className="h-4 w-4" />}
-                  <span className="font-mono">{token.change24h >= 0 ? '+' : ''}{token.change24h.toFixed(2)}%</span>
-                </div>
-              </div>
-              <div className="text-right text-sm">
-                <p className="text-muted-foreground">24h Vol</p>
-                <p className="font-mono">${formatNumber(token.volume24h)}</p>
-              </div>
-              <div className="text-right text-sm">
-                <p className="text-muted-foreground">MCap</p>
-                <p className="font-mono">${formatNumber(token.marketCap)}</p>
-              </div>
+        {/* Loading State */}
+        {loading && !dexToken && (
+          <div className="flex items-center justify-center h-64">
+            <div className="text-center">
+              <Loader2 className="h-8 w-8 animate-spin text-primary mx-auto mb-4" />
+              <p className="text-muted-foreground font-mono">Loading token data...</p>
             </div>
           </div>
-        </motion.div>
+        )}
+
+        {/* Error State */}
+        {error && !dexToken && (
+          <div className="flex items-center justify-center h-64">
+            <div className="text-center">
+              <AlertCircle className="h-8 w-8 text-destructive mx-auto mb-4" />
+              <p className="text-destructive font-mono mb-2">Failed to load token</p>
+              <p className="text-muted-foreground text-sm mb-4">{error}</p>
+              <Button onClick={refresh} variant="outline" size="sm">
+                <RefreshCw className="h-4 w-4 mr-2" />
+                Retry
+              </Button>
+            </div>
+          </div>
+        )}
+
+        {/* No Token Selected */}
+        {!tokenAddress && !loading && (
+          <div className="flex items-center justify-center h-64">
+            <div className="text-center">
+              <BarChart3 className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+              <p className="text-muted-foreground font-mono mb-2">No token selected</p>
+              <p className="text-sm text-muted-foreground mb-4">
+                Select a token from the Sniper Board to start trading
+              </p>
+              <Button onClick={() => navigate("/sniper")} variant="default" size="sm">
+                Go to Sniper Board
+              </Button>
+            </div>
+          </div>
+        )}
+
+        {/* Main Content - Show when we have token data */}
+        {(dexToken || (!loading && tokenAddress)) && (
+          <>
+            {/* Terminal Header */}
+            <motion.div
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="mb-4"
+            >
+              <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                <div className="flex items-center gap-4">
+                  <div className="h-12 w-12 rounded-lg bg-gradient-to-br from-primary to-primary/50 flex items-center justify-center">
+                    {loading ? (
+                      <Loader2 className="h-6 w-6 text-primary-foreground animate-spin" />
+                    ) : (
+                      <BarChart3 className="h-6 w-6 text-primary-foreground" />
+                    )}
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <h1 className="text-2xl font-bold font-mono">
+                        {token.symbol}<span className="text-muted-foreground">/SOL</span>
+                      </h1>
+                      <Badge variant="outline" className="font-mono text-xs border-primary/30 text-primary">
+                        {token.chain}
+                      </Badge>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-6 w-6"
+                        onClick={refresh}
+                        disabled={loading}
+                      >
+                        <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
+                      </Button>
+                    </div>
+                    <p className="text-muted-foreground text-sm font-mono">{token.name}</p>
+                  </div>
+                </div>
+                
+                {/* Price Display */}
+                <div className="flex items-center gap-6">
+                  <div className="text-right">
+                    {loading && !dexToken ? (
+                      <Skeleton className="h-8 w-24 mb-1" />
+                    ) : (
+                      <p className={`text-3xl font-bold font-mono ${token.change24h >= 0 ? 'text-success' : 'text-destructive'}`}>
+                        ${formatPrice(token.price)}
+                      </p>
+                    )}
+                    <div className={`flex items-center gap-1 justify-end ${token.change24h >= 0 ? 'text-success' : 'text-destructive'}`}>
+                      {token.change24h >= 0 ? <TrendingUp className="h-4 w-4" /> : <TrendingDown className="h-4 w-4" />}
+                      <span className="font-mono">{token.change24h >= 0 ? '+' : ''}{token.change24h.toFixed(2)}%</span>
+                    </div>
+                  </div>
+                  <div className="text-right text-sm">
+                    <p className="text-muted-foreground">24h Vol</p>
+                    <p className="font-mono">${formatNumber(token.volume24h)}</p>
+                  </div>
+                  <div className="text-right text-sm">
+                    <p className="text-muted-foreground">Liquidity</p>
+                    <p className="font-mono">${formatNumber(token.liquidity || 0)}</p>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
 
         {/* Main Trading Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
@@ -689,6 +781,8 @@ const TradeTerminal = () => {
             </DialogFooter>
           </DialogContent>
         </Dialog>
+          </>
+        )}
       </div>
     </DashboardLayout>
   );

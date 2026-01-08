@@ -296,3 +296,92 @@ export function useDexScreener() {
     refresh: fetchLatestTokens,
   };
 }
+
+// Hook to fetch a single token by address
+export function useDexScreenerToken(tokenAddress: string | null, chainId: string = "solana") {
+  const [token, setToken] = useState<DexScreenerPair | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const fetchToken = useCallback(async () => {
+    if (!tokenAddress) {
+      console.log("⚠️ No token address provided");
+      setLoading(false);
+      return;
+    }
+
+    console.log("🔄 Fetching token data for:", tokenAddress);
+    setLoading(true);
+    setError(null);
+
+    try {
+      // Use the tokens endpoint to get data for a specific token
+      const tokenUrl = `https://api.dexscreener.com/latest/dex/tokens/${tokenAddress}`;
+      console.log("📡 Requesting:", tokenUrl);
+
+      const response = await fetch(tokenUrl);
+      console.log("📥 Response status:", response.status);
+
+      if (!response.ok) {
+        throw new Error(`API returned status ${response.status}`);
+      }
+
+      const data = await response.json();
+      console.log("📦 Token data received:", data);
+
+      const pairs: DexScreenerPairData[] = data.pairs || [];
+      
+      if (pairs.length === 0) {
+        throw new Error("Token not found");
+      }
+
+      // Get the pair with highest liquidity
+      const bestPair = pairs.reduce((best, current) => {
+        const currentLiq = current.liquidity?.usd || 0;
+        const bestLiq = best.liquidity?.usd || 0;
+        return currentLiq > bestLiq ? current : best;
+      }, pairs[0]);
+
+      const formattedToken: DexScreenerPair = {
+        id: bestPair.pairAddress,
+        pairAddress: bestPair.pairAddress,
+        tokenAddress: bestPair.baseToken.address,
+        name: bestPair.baseToken.name || "Unknown",
+        symbol: bestPair.baseToken.symbol || "???",
+        chain: chainMap[bestPair.chainId] || bestPair.chainId?.toUpperCase() || "???",
+        chainId: bestPair.chainId || "unknown",
+        launchedAt: bestPair.pairCreatedAt
+          ? new Date(bestPair.pairCreatedAt)
+          : new Date(),
+        liquidity: bestPair.liquidity?.usd || 0,
+        volume24h: bestPair.volume?.h24 || 0,
+        priceUsd: parseFloat(bestPair.priceUsd) || 0,
+        priceChange24h: bestPair.priceChange?.h24 || 0,
+        buys24h: bestPair.txns?.h24?.buys || 0,
+        sells24h: bestPair.txns?.h24?.sells || 0,
+        icon: bestPair.info?.imageUrl,
+        dexId: bestPair.dexId || "unknown",
+        url: bestPair.url || "",
+      };
+
+      console.log("✅ Token formatted:", formattedToken);
+      setToken(formattedToken);
+    } catch (err) {
+      console.error("❌ Token fetch error:", err);
+      setError(err instanceof Error ? err.message : "Failed to fetch token");
+      setToken(null);
+    } finally {
+      setLoading(false);
+    }
+  }, [tokenAddress, chainId]);
+
+  useEffect(() => {
+    fetchToken();
+
+    // Auto-refresh every 15 seconds for live price updates
+    const interval = setInterval(fetchToken, 15000);
+    return () => clearInterval(interval);
+  }, [fetchToken]);
+
+  return { token, loading, error, refresh: fetchToken };
+}
