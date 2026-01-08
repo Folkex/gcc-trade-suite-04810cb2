@@ -75,14 +75,6 @@ const LivePriceTicker = () => {
       onMouseEnter={() => setIsPaused(true)}
       onMouseLeave={() => setIsPaused(false)}
     >
-      {/* Live badge - positioned properly */}
-      {isLive && (
-        <div className="absolute left-3 top-1/2 -translate-y-1/2 flex items-center gap-1.5 bg-success/10 border border-success/20 px-2 py-1 rounded-full text-[10px] z-20">
-          <span className="w-1.5 h-1.5 rounded-full bg-success animate-pulse" />
-          <span className="text-success font-semibold tracking-wide">LIVE</span>
-        </div>
-      )}
-
       {/* Gradient fade edges */}
       <div className="absolute left-0 top-0 bottom-0 w-16 bg-gradient-to-r from-card to-transparent z-10 pointer-events-none" />
       <div className="absolute right-0 top-0 bottom-0 w-16 bg-gradient-to-l from-card to-transparent z-10 pointer-events-none" />

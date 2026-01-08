@@ -37,7 +37,7 @@ const Header = ({ lang, onLangChange }: HeaderProps) => {
   const isRTL = lang === "ar";
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50">
+    <header className="relative top-0 left-0 right-0 z-50">
       {/* Live Price Ticker */}
       <LivePriceTicker />
       
