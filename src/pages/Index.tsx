@@ -16,13 +16,84 @@ import {
   ChevronRight,
   FileText,
   Shield,
-  Scale
+  Scale,
+  LogIn,
+  UserPlus
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { useMarket, DexScreenerPair } from "@/contexts/MarketContext";
+import { useAuth } from "@/contexts/AuthContext";
 import GlobalLeaderboard from "@/components/crypto/GlobalLeaderboard";
+
+// ============================================
+// HEADER COMPONENT
+// ============================================
+const Header = () => {
+  const navigate = useNavigate();
+  const { user } = useAuth();
+
+  return (
+    <motion.header
+      initial={{ opacity: 0, y: -20 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="glass-card px-4 sm:px-6 py-3 flex items-center justify-between mb-6"
+    >
+      {/* Logo */}
+      <Link to="/" className="flex items-center gap-2 group">
+        <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-primary to-primary/50 flex items-center justify-center neon-glow-soft group-hover:scale-105 transition-transform">
+          <span className="text-primary-foreground font-bold text-sm">A</span>
+        </div>
+        <span className="font-bold text-xl font-mono text-foreground hidden sm:block">Arbah.co</span>
+      </Link>
+
+      {/* Nav Links - Desktop */}
+      <nav className="hidden md:flex items-center gap-6">
+        <Link to="/markets" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+          Markets
+        </Link>
+        <Link to="/trade" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+          Trade
+        </Link>
+        <Link to="/market-sniper" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+          Sniper
+        </Link>
+      </nav>
+
+      {/* Auth Buttons */}
+      <div className="flex items-center gap-2">
+        {user ? (
+          <Button 
+            onClick={() => navigate("/dashboard")}
+            className="bg-primary hover:bg-primary/90 text-primary-foreground rounded-full px-5"
+          >
+            Dashboard
+            <ArrowRight className="h-4 w-4 ml-1" />
+          </Button>
+        ) : (
+          <>
+            <Button 
+              variant="ghost" 
+              onClick={() => navigate("/login")}
+              className="text-muted-foreground hover:text-foreground"
+            >
+              <LogIn className="h-4 w-4 mr-2" />
+              Sign In
+            </Button>
+            <Button 
+              onClick={() => navigate("/signup")}
+              className="bg-primary hover:bg-primary/90 text-primary-foreground rounded-full px-5"
+            >
+              <UserPlus className="h-4 w-4 mr-2" />
+              Sign Up
+            </Button>
+          </>
+        )}
+      </div>
+    </motion.header>
+  );
+};
 
 // ============================================
 // QUICK BUY CARD COMPONENT
@@ -262,7 +333,10 @@ const Index = () => {
       <FloatingNavDock />
 
       {/* Main Content */}
-      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:pl-24">
+      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 lg:pl-24">
+        
+        {/* Header */}
+        <Header />
         
         {/* ============================================ */}
         {/* ROW 1: HERO SECTION */}
