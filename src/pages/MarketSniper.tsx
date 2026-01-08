@@ -119,7 +119,7 @@ const TableSkeleton = () => (
 );
 
 const MarketSniper = () => {
-  const { pairs, loading, error, lastUpdated, refresh } = useDexScreener();
+  const { pairs, loading, error, lastUpdated, usingMockData, refresh } = useDexScreener();
   const [quickTradeToken, setQuickTradeToken] = useState<DexScreenerPair | null>(null);
   const [chainFilter, setChainFilter] = useState<string>("all");
   const [minLiquidity, setMinLiquidity] = useState("");
@@ -316,8 +316,30 @@ const MarketSniper = () => {
               <CardContent className="p-4 flex items-center gap-3">
                 <AlertCircle className="h-5 w-5 text-destructive" />
                 <div className="flex-1">
-                  <p className="font-mono text-sm text-destructive">API Error: {error}</p>
-                  <p className="text-xs text-muted-foreground">Data may be stale. Click refresh to retry.</p>
+                  <p className="font-mono text-sm text-destructive">⚠️ API Connection Failed: {error}</p>
+                  <p className="text-xs text-muted-foreground">Using mock data. Check console for details.</p>
+                </div>
+                <Button variant="outline" size="sm" onClick={refresh}>
+                  Retry
+                </Button>
+              </CardContent>
+            </Card>
+          </motion.div>
+        )}
+
+        {/* Mock Data Warning */}
+        {usingMockData && !error && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mb-4"
+          >
+            <Card className="border-warning/50 bg-warning/10">
+              <CardContent className="p-4 flex items-center gap-3">
+                <AlertCircle className="h-5 w-5 text-warning" />
+                <div className="flex-1">
+                  <p className="font-mono text-sm text-warning">⚠️ Using Mock Data</p>
+                  <p className="text-xs text-muted-foreground">API returned no results. Displaying sample data.</p>
                 </div>
                 <Button variant="outline" size="sm" onClick={refresh}>
                   Retry
