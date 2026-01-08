@@ -28,6 +28,7 @@ import {
   FileText,
   Scale,
   Radio,
+  Globe,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -73,6 +74,7 @@ const navSections: NavSection[] = [
     defaultOpen: true,
     items: [
       { title: "Trade Terminal", icon: BarChart3, path: "/trade" },
+      { title: "Markets", icon: Globe, path: "/markets" },
       { title: "Sniper Board", icon: Crosshair, path: "/market-sniper" },
       { title: "Scanner", icon: Shield, path: "/scanner" },
       { title: "Whale Watch", icon: Waves, path: "/whale-watch" },
