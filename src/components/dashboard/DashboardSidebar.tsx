@@ -29,6 +29,7 @@ import {
   Scale,
   Radio,
   Globe,
+  type LucideIcon,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -50,7 +51,7 @@ import {
 
 interface NavItem {
   title: string;
-  icon: React.ElementType;
+  icon: LucideIcon;
   path: string;
 }
 
