@@ -99,6 +99,9 @@ function App() {
                 <Route path="/support" element={<Support />} />
                 <Route path="/help" element={<HelpSupport />} />
 
+                {/* Legal Pages */}
+                <Route path="/legal/:type" element={<LegalPage />} />
+
               {/* Catch-all */}
               <Route path="*" element={<NotFound />} />
             </Routes>
