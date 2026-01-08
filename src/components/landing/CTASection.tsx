@@ -10,7 +10,7 @@ interface CTASectionProps {
 const translations = {
   en: {
     title: "Ready to Take Control?",
-    subtitle: "Join thousands of traders who trust TradeFlow for their complete trading ecosystem.",
+    subtitle: "Join thousands of traders who trust Arbah.co for their complete trading ecosystem.",
     cta: "Get Started Free",
     secondaryCta: "View Demo",
     note: "No credit card required • Free forever plan available",
@@ -22,7 +22,7 @@ const translations = {
   },
   ar: {
     title: "هل أنت مستعد للسيطرة؟",
-    subtitle: "انضم إلى آلاف المتداولين الذين يثقون في TradeFlow لنظامهم التجاري الكامل.",
+    subtitle: "انضم إلى آلاف المتداولين الذين يثقون في Arbah.co لنظامهم التجاري الكامل.",
     cta: "ابدأ مجاناً",
     secondaryCta: "شاهد العرض",
     note: "لا حاجة لبطاقة ائتمان • خطة مجانية للأبد",

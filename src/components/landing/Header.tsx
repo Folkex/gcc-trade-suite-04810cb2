@@ -42,72 +42,78 @@ const Header = ({ lang, onLangChange }: HeaderProps) => {
       <LivePriceTicker />
       
       {/* Main Header */}
-      <div className="glass glass-border">
+      <div className="bg-card/95 backdrop-blur-xl border-b border-border/30">
         <div className="container mx-auto px-4">
-          <div className="flex items-center justify-between h-16" dir={isRTL ? "rtl" : "ltr"}>
-          {/* Logo */}
-          <motion.div 
-            initial={{ opacity: 0, x: isRTL ? 20 : -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            className="flex items-center gap-2"
-          >
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-accent flex items-center justify-center">
-              <span className="text-primary-foreground font-bold text-lg">A</span>
-            </div>
-            <span className="font-display font-bold text-xl">Arbah.co</span>
-          </motion.div>
+          <div className="flex items-center justify-between h-14" dir={isRTL ? "rtl" : "ltr"}>
+            {/* Logo */}
+            <motion.div 
+              initial={{ opacity: 0, x: isRTL ? 20 : -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              className="flex items-center gap-2.5"
+            >
+              <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-primary to-accent flex items-center justify-center shadow-lg shadow-primary/20">
+                <span className="text-primary-foreground font-bold text-base">A</span>
+              </div>
+              <span className="font-display font-bold text-lg">Arbah.co</span>
+            </motion.div>
 
-          {/* Desktop Navigation */}
-          <nav className="hidden md:flex items-center gap-8">
-            {[t.markets, t.features, t.pricing, t.about].map((item, index) => (
-              <motion.a
-                key={item}
-                href="#"
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.1 }}
-                className="text-muted-foreground hover:text-foreground transition-colors font-medium"
+            {/* Desktop Navigation */}
+            <nav className="hidden md:flex items-center gap-1">
+              {[
+                { label: t.markets, href: "#markets" },
+                { label: t.features, href: "#features" },
+                { label: t.pricing, href: "#" },
+                { label: t.about, href: "#" },
+              ].map((item, index) => (
+                <motion.a
+                  key={item.label}
+                  href={item.href}
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.1 }}
+                  className="px-4 py-2 text-sm text-muted-foreground hover:text-foreground hover:bg-secondary/50 rounded-lg transition-all font-medium"
+                >
+                  {item.label}
+                </motion.a>
+              ))}
+            </nav>
+
+            {/* Actions */}
+            <div className="hidden md:flex items-center gap-2">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => onLangChange(lang === "en" ? "ar" : "en")}
+                className="rounded-lg gap-1.5 text-muted-foreground hover:text-foreground"
               >
-                {item}
-              </motion.a>
-            ))}
-          </nav>
+                <Globe className="h-4 w-4" />
+                <span className="text-xs">{lang === "en" ? "AR" : "EN"}</span>
+              </Button>
+              {user ? (
+                <Button asChild size="sm" className="bg-gradient-to-r from-primary to-accent hover:opacity-90 transition-opacity rounded-lg">
+                  <Link to="/dashboard">Dashboard</Link>
+                </Button>
+              ) : (
+                <>
+                  <Button variant="ghost" size="sm" asChild className="rounded-lg">
+                    <Link to="/login">{t.login}</Link>
+                  </Button>
+                  <Button asChild size="sm" className="bg-gradient-to-r from-primary to-accent hover:opacity-90 transition-opacity rounded-lg shadow-lg shadow-primary/20">
+                    <Link to="/signup">{t.getStarted}</Link>
+                  </Button>
+                </>
+              )}
+            </div>
 
-          {/* Actions */}
-          <div className="hidden md:flex items-center gap-4">
+            {/* Mobile Menu Button */}
             <Button
               variant="ghost"
               size="icon"
-              onClick={() => onLangChange(lang === "en" ? "ar" : "en")}
-              className="rounded-full"
+              className="md:hidden h-9 w-9"
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
             >
-              <Globe className="h-5 w-5" />
+              {isMobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
             </Button>
-            {user ? (
-              <Button asChild className="bg-gradient-to-r from-primary to-accent hover:opacity-90 transition-opacity">
-                <Link to="/dashboard">Dashboard</Link>
-              </Button>
-            ) : (
-              <>
-                <Button variant="ghost" asChild>
-                  <Link to="/login">{t.login}</Link>
-                </Button>
-                <Button asChild className="bg-gradient-to-r from-primary to-accent hover:opacity-90 transition-opacity">
-                  <Link to="/signup">{t.getStarted}</Link>
-                </Button>
-              </>
-            )}
-          </div>
-
-          {/* Mobile Menu Button */}
-          <Button
-            variant="ghost"
-            size="icon"
-            className="md:hidden"
-            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-          >
-            {isMobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-          </Button>
           </div>
         </div>
       </div>

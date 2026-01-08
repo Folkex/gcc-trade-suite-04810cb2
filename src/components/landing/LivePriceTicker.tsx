@@ -18,8 +18,8 @@ const LivePriceTicker = () => {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [isPaused, setIsPaused] = useState(false);
 
-  // Get top 10 tokens for the ticker
-  const tickerTokens = marketData.slice(0, 10);
+  // Get top 12 tokens for the ticker
+  const tickerTokens = marketData.slice(0, 12);
 
   // Double the tokens for seamless loop
   const displayTokens = [...tickerTokens, ...tickerTokens];
@@ -30,12 +30,11 @@ const LivePriceTicker = () => {
 
     let animationId: number;
     let scrollPosition = 0;
-    const scrollSpeed = 0.5; // pixels per frame
+    const scrollSpeed = 0.4;
 
     const animate = () => {
       scrollPosition += scrollSpeed;
       
-      // Reset when we've scrolled half (the first set of tokens)
       const halfWidth = scrollContainer.scrollWidth / 2;
       if (scrollPosition >= halfWidth) {
         scrollPosition = 0;
@@ -52,13 +51,13 @@ const LivePriceTicker = () => {
 
   if (loading) {
     return (
-      <div className="bg-secondary/50 border-b border-border/50">
-        <div className="flex items-center gap-6 px-4 py-1.5 overflow-hidden">
+      <div className="bg-card/80 backdrop-blur-sm border-b border-border/30">
+        <div className="flex items-center gap-8 px-6 py-2 overflow-hidden">
           {[...Array(8)].map((_, i) => (
             <div key={i} className="flex items-center gap-2 shrink-0">
-              <Skeleton className="h-4 w-12" />
+              <Skeleton className="h-5 w-5 rounded-full" />
+              <Skeleton className="h-4 w-14" />
               <Skeleton className="h-4 w-16" />
-              <Skeleton className="h-4 w-10" />
             </div>
           ))}
         </div>
@@ -72,85 +71,77 @@ const LivePriceTicker = () => {
 
   return (
     <div 
-      className="bg-secondary/50 border-b border-border/50 overflow-hidden"
+      className="relative bg-card/80 backdrop-blur-sm border-b border-border/30 overflow-hidden"
       onMouseEnter={() => setIsPaused(true)}
       onMouseLeave={() => setIsPaused(false)}
     >
-      {/* Live indicator */}
-      <div className="relative">
-        {/* Gradient fade edges */}
-        <div className="absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-secondary/80 to-transparent z-10 pointer-events-none" />
-        <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-secondary/80 to-transparent z-10 pointer-events-none" />
-        
-        {/* Scrolling content */}
-        <div
-          ref={scrollRef}
-          className="flex items-center gap-6 px-4 py-1.5 overflow-hidden scrollbar-none"
-          style={{ scrollBehavior: 'auto' }}
-        >
-          {displayTokens.map((token, index) => (
-            <motion.div
-              key={`${token.id}-${index}`}
-              className="flex items-center gap-2 shrink-0 cursor-pointer hover:opacity-80 transition-opacity"
-              onClick={() => window.location.href = `/trade?token=${token.tokenAddress}&chain=${token.chainId}`}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: (index % tickerTokens.length) * 0.05 }}
-            >
-              {/* Token icon or fallback */}
-              {token.icon ? (
-                <img 
-                  src={token.icon} 
-                  alt={token.symbol}
-                  className="w-4 h-4 rounded-full object-cover"
-                  onError={(e) => {
-                    (e.target as HTMLImageElement).style.display = 'none';
-                  }}
-                />
-              ) : (
-                <div className="w-4 h-4 rounded-full bg-primary/20 flex items-center justify-center">
-                  <span className="text-[8px] font-bold text-primary">
-                    {token.symbol.charAt(0)}
-                  </span>
-                </div>
-              )}
-              
-              {/* Symbol */}
-              <span className="font-mono text-xs font-semibold text-foreground">
-                {token.symbol}
-              </span>
-              
-              {/* Price */}
-              <span className="font-mono text-xs text-muted-foreground">
-                {formatPrice(token.priceUsd)}
-              </span>
-              
-              {/* Change */}
-              <span className={`flex items-center gap-0.5 font-mono text-xs font-medium ${
-                token.priceChange24h >= 0 ? 'text-success' : 'text-destructive'
-              }`}>
-                {token.priceChange24h >= 0 ? (
-                  <TrendingUp className="h-3 w-3" />
-                ) : (
-                  <TrendingDown className="h-3 w-3" />
-                )}
-                {token.priceChange24h >= 0 ? '+' : ''}{token.priceChange24h.toFixed(2)}%
-              </span>
-              
-              {/* Separator dot */}
-              <span className="w-1 h-1 rounded-full bg-border ml-2" />
-            </motion.div>
-          ))}
-        </div>
-      </div>
-      
-      {/* Live badge */}
+      {/* Live badge - positioned properly */}
       {isLive && (
-        <div className="absolute left-2 top-1/2 -translate-y-1/2 flex items-center gap-1 bg-secondary/90 px-1.5 py-0.5 rounded text-[10px] z-20">
+        <div className="absolute left-3 top-1/2 -translate-y-1/2 flex items-center gap-1.5 bg-success/10 border border-success/20 px-2 py-1 rounded-full text-[10px] z-20">
           <span className="w-1.5 h-1.5 rounded-full bg-success animate-pulse" />
-          <span className="text-success font-medium">LIVE</span>
+          <span className="text-success font-semibold tracking-wide">LIVE</span>
         </div>
       )}
+
+      {/* Gradient fade edges */}
+      <div className="absolute left-0 top-0 bottom-0 w-16 bg-gradient-to-r from-card to-transparent z-10 pointer-events-none" />
+      <div className="absolute right-0 top-0 bottom-0 w-16 bg-gradient-to-l from-card to-transparent z-10 pointer-events-none" />
+      
+      {/* Scrolling content */}
+      <div
+        ref={scrollRef}
+        className="flex items-center gap-8 px-16 py-2 overflow-hidden scrollbar-none"
+        style={{ scrollBehavior: 'auto' }}
+      >
+        {displayTokens.map((token, index) => (
+          <motion.div
+            key={`${token.id}-${index}`}
+            className="flex items-center gap-2.5 shrink-0 cursor-pointer hover:bg-secondary/50 px-2 py-1 rounded-lg transition-all"
+            onClick={() => window.location.href = `/trade?token=${token.tokenAddress}&chain=${token.chainId}`}
+            whileHover={{ scale: 1.02 }}
+          >
+            {/* Token icon or fallback */}
+            {token.icon ? (
+              <img 
+                src={token.icon} 
+                alt={token.symbol}
+                className="w-5 h-5 rounded-full object-cover ring-1 ring-border/50"
+                onError={(e) => {
+                  (e.target as HTMLImageElement).style.display = 'none';
+                }}
+              />
+            ) : (
+              <div className="w-5 h-5 rounded-full bg-gradient-to-br from-primary/30 to-accent/30 flex items-center justify-center ring-1 ring-border/50">
+                <span className="text-[9px] font-bold text-primary">
+                  {token.symbol.charAt(0)}
+                </span>
+              </div>
+            )}
+            
+            {/* Symbol */}
+            <span className="font-mono text-xs font-bold text-foreground">
+              {token.symbol}
+            </span>
+            
+            {/* Price */}
+            <span className="font-mono text-xs text-muted-foreground">
+              {formatPrice(token.priceUsd)}
+            </span>
+            
+            {/* Change */}
+            <span className={`flex items-center gap-0.5 font-mono text-xs font-semibold ${
+              token.priceChange24h >= 0 ? 'text-success' : 'text-destructive'
+            }`}>
+              {token.priceChange24h >= 0 ? (
+                <TrendingUp className="h-3 w-3" />
+              ) : (
+                <TrendingDown className="h-3 w-3" />
+              )}
+              {token.priceChange24h >= 0 ? '+' : ''}{token.priceChange24h.toFixed(1)}%
+            </span>
+          </motion.div>
+        ))}
+      </div>
     </div>
   );
 };
