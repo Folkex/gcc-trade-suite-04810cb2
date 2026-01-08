@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { AlertTriangle, X } from "lucide-react";
+import { AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -10,10 +10,23 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { toast } from "sonner";
+import { useWallet, INTERNAL_BALANCE } from "@/contexts/WalletContext";
 
 const PanicButton = () => {
   const [open, setOpen] = useState(false);
   const [executing, setExecuting] = useState(false);
+  const { isConnected, externalWalletValue } = useWallet();
+
+  const grandTotal = INTERNAL_BALANCE + externalWalletValue;
+
+  const formatUsd = (value: number) => {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD',
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    }).format(value);
+  };
 
   const handleEmergencySell = async () => {
     setExecuting(true);
@@ -57,11 +70,13 @@ const PanicButton = () => {
           <div className="space-y-2 text-sm">
             <div className="flex justify-between text-muted-foreground">
               <span>Open Positions:</span>
-              <span className="font-mono text-foreground">5</span>
+              <span className="font-mono text-foreground">{isConnected ? "0" : "N/A"}</span>
             </div>
             <div className="flex justify-between text-muted-foreground">
               <span>Estimated Value:</span>
-              <span className="font-mono text-foreground">$12,450.00</span>
+              <span className="font-mono text-foreground">
+                {isConnected ? formatUsd(grandTotal) : "Not connected"}
+              </span>
             </div>
             <div className="flex justify-between text-muted-foreground">
               <span>Est. Slippage:</span>
@@ -76,7 +91,7 @@ const PanicButton = () => {
             <Button
               variant="destructive"
               onClick={handleEmergencySell}
-              disabled={executing}
+              disabled={executing || !isConnected}
               className="gap-2"
             >
               {executing ? (

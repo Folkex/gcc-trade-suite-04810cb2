@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Wallet, Plus, ArrowDownLeft, ChevronDown } from "lucide-react";
+import { Wallet, Plus, ArrowDownLeft, ChevronDown, Link2Off } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -9,7 +9,9 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Skeleton } from "@/components/ui/skeleton";
 import DepositModal from "./DepositModal";
+import { useWallet, INTERNAL_BALANCE } from "@/contexts/WalletContext";
 
 interface WalletOverviewProps {
   onWithdraw?: () => void;
@@ -17,13 +19,38 @@ interface WalletOverviewProps {
 
 const WalletOverview = ({ onWithdraw }: WalletOverviewProps) => {
   const [depositOpen, setDepositOpen] = useState(false);
+  const { 
+    isConnected, 
+    tokenBalances, 
+    externalWalletValue, 
+    portfolioLoading,
+    openConnectModal,
+    disconnect 
+  } = useWallet();
 
-  // Dummy wallet data
-  const walletData = {
-    totalUSD: 15420.50,
-    eth: 2.45,
-    sol: 125.8,
+  const grandTotal = INTERNAL_BALANCE + externalWalletValue;
+
+  const formatUsd = (value: number) => {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD',
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    }).format(value);
   };
+
+  if (!isConnected) {
+    return (
+      <Button
+        variant="outline"
+        className="gap-2 font-mono text-sm h-9 border-primary/30 hover:border-primary/50"
+        onClick={openConnectModal}
+      >
+        <Wallet className="h-4 w-4 text-primary" />
+        <span className="hidden sm:inline">Connect Wallet</span>
+      </Button>
+    );
+  }
 
   return (
     <>
@@ -34,36 +61,52 @@ const WalletOverview = ({ onWithdraw }: WalletOverviewProps) => {
             className="gap-2 font-mono text-sm h-9 border-primary/30 hover:border-primary/50"
           >
             <Wallet className="h-4 w-4 text-primary" />
-            <span className="hidden sm:inline">${walletData.totalUSD.toLocaleString()}</span>
+            {portfolioLoading ? (
+              <Skeleton className="h-4 w-16" />
+            ) : (
+              <span className="hidden sm:inline">{formatUsd(grandTotal)}</span>
+            )}
             <ChevronDown className="h-3 w-3 text-muted-foreground" />
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-64 glass glass-border">
           <DropdownMenuLabel className="flex items-center justify-between">
             <span>Trading Balance</span>
-            <span className="font-mono text-primary">${walletData.totalUSD.toLocaleString()}</span>
+            {portfolioLoading ? (
+              <Skeleton className="h-4 w-20" />
+            ) : (
+              <span className="font-mono text-primary">{formatUsd(grandTotal)}</span>
+            )}
           </DropdownMenuLabel>
           <DropdownMenuSeparator />
           
           <div className="px-2 py-2 space-y-2">
-            <div className="flex items-center justify-between text-sm">
-              <div className="flex items-center gap-2">
-                <div className="w-5 h-5 rounded-full bg-blue-500/20 flex items-center justify-center">
-                  <span className="text-[10px] font-bold text-blue-400">Ξ</span>
+            {portfolioLoading ? (
+              [...Array(2)].map((_, i) => (
+                <div key={i} className="flex items-center justify-between">
+                  <Skeleton className="h-5 w-20" />
+                  <Skeleton className="h-4 w-16" />
                 </div>
-                <span className="text-muted-foreground">ETH</span>
-              </div>
-              <span className="font-mono">{walletData.eth}</span>
-            </div>
-            <div className="flex items-center justify-between text-sm">
-              <div className="flex items-center gap-2">
-                <div className="w-5 h-5 rounded-full bg-purple-500/20 flex items-center justify-center">
-                  <span className="text-[10px] font-bold text-purple-400">◎</span>
+              ))
+            ) : tokenBalances.length > 0 ? (
+              tokenBalances.map((token) => (
+                <div key={token.symbol} className="flex items-center justify-between text-sm">
+                  <div className="flex items-center gap-2">
+                    {token.icon ? (
+                      <img src={token.icon} alt={token.symbol} className="w-5 h-5 rounded-full" />
+                    ) : (
+                      <div className="w-5 h-5 rounded-full bg-primary/20 flex items-center justify-center">
+                        <span className="text-[10px] font-bold text-primary">{token.symbol.slice(0, 1)}</span>
+                      </div>
+                    )}
+                    <span className="text-muted-foreground">{token.symbol}</span>
+                  </div>
+                  <span className="font-mono">{token.balance}</span>
                 </div>
-                <span className="text-muted-foreground">SOL</span>
-              </div>
-              <span className="font-mono">{walletData.sol}</span>
-            </div>
+              ))
+            ) : (
+              <p className="text-xs text-muted-foreground text-center py-2">No assets detected</p>
+            )}
           </div>
 
           <DropdownMenuSeparator />
@@ -87,6 +130,13 @@ const WalletOverview = ({ onWithdraw }: WalletOverviewProps) => {
               Withdraw
             </Button>
           </div>
+
+          <DropdownMenuSeparator />
+          
+          <DropdownMenuItem onClick={disconnect} className="text-destructive focus:text-destructive gap-2">
+            <Link2Off className="h-4 w-4" />
+            Disconnect Wallet
+          </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
 
