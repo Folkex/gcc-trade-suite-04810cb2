@@ -154,14 +154,14 @@ const GlobalLeaderboard = ({ limit = 50, compact = false, showHeader = true }: G
     return (
       <div className="glass-card overflow-hidden">
         {showHeader && (
-          <div className="p-4 pb-3 border-b border-white/[0.05]">
-            <div className="flex items-center gap-2 text-lg font-semibold text-white">
+          <div className="p-4 pb-3 border-b border-border">
+            <div className="flex items-center gap-2 text-lg font-semibold text-foreground">
               <Crown className="h-5 w-5 text-amber-500" />
               Global Market Leaderboard
             </div>
           </div>
         )}
-        <div className="divide-y divide-white/[0.05]">
+        <div className="divide-y divide-border/50">
           {[...Array(compact ? 10 : 20)].map((_, i) => (
             <div key={i} className="grid grid-cols-12 gap-4 px-4 py-3">
               <div className="col-span-1"><Skeleton className="h-5 w-6" /></div>
@@ -187,8 +187,8 @@ const GlobalLeaderboard = ({ limit = 50, compact = false, showHeader = true }: G
     return (
       <div className="glass-card overflow-hidden">
         {showHeader && (
-          <div className="p-4 pb-3 border-b border-white/[0.05]">
-            <div className="flex items-center gap-2 text-lg font-semibold text-white">
+          <div className="p-4 pb-3 border-b border-border">
+            <div className="flex items-center gap-2 text-lg font-semibold text-foreground">
               <Crown className="h-5 w-5 text-amber-500" />
               Global Market Leaderboard
             </div>
@@ -209,9 +209,9 @@ const GlobalLeaderboard = ({ limit = 50, compact = false, showHeader = true }: G
   return (
     <div className="glass-card overflow-hidden">
       {showHeader && (
-        <div className="p-4 pb-3 border-b border-white/[0.05]">
+        <div className="p-4 pb-3 border-b border-border">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2 text-lg font-semibold text-white">
+            <div className="flex items-center gap-2 text-lg font-semibold text-foreground">
               <Crown className="h-5 w-5 text-amber-500" />
               Global Market Leaderboard
               <Badge variant="outline" className={`ml-2 text-[10px] font-normal ${getSourceColor(dataSource)}`}>
@@ -229,7 +229,7 @@ const GlobalLeaderboard = ({ limit = 50, compact = false, showHeader = true }: G
       )}
       
       {/* Table Header */}
-      <div className={`grid ${compact ? "grid-cols-10" : "grid-cols-12"} gap-4 px-4 py-3 border-b border-white/[0.05] bg-white/[0.02] text-xs font-medium text-muted-foreground uppercase tracking-wider`}>
+      <div className={`grid ${compact ? "grid-cols-10" : "grid-cols-12"} gap-4 px-4 py-3 border-b border-border bg-secondary/30 text-xs font-medium text-muted-foreground uppercase tracking-wider`}>
         <div className="col-span-1">#</div>
         <div className={compact ? "col-span-3" : "col-span-4"}>Name</div>
         <div className="col-span-2 text-right">Price</div>
@@ -239,7 +239,7 @@ const GlobalLeaderboard = ({ limit = 50, compact = false, showHeader = true }: G
       </div>
 
       {/* Asset Rows */}
-      <div className="divide-y divide-white/[0.03] max-h-[600px] overflow-y-auto">
+      <div className="divide-y divide-border/30 max-h-[600px] overflow-y-auto">
         <AnimatePresence mode="popLayout">
           {assets.slice(0, compact ? 10 : limit).map((asset, index) => {
             const change = asset.priceChange24h;
@@ -254,7 +254,7 @@ const GlobalLeaderboard = ({ limit = 50, compact = false, showHeader = true }: G
                 exit={{ opacity: 0, y: -10 }}
                 transition={{ delay: index * 0.02 }}
                 onClick={() => handleAssetClick(asset)}
-                className={`grid ${compact ? "grid-cols-10" : "grid-cols-12"} gap-4 px-4 py-3 hover:bg-white/[0.03] cursor-pointer transition-colors group`}
+                className={`grid ${compact ? "grid-cols-10" : "grid-cols-12"} gap-4 px-4 py-3 hover:bg-secondary/50 cursor-pointer transition-colors group`}
               >
                 {/* Rank */}
                 <div className="col-span-1 flex items-center">
@@ -265,14 +265,14 @@ const GlobalLeaderboard = ({ limit = 50, compact = false, showHeader = true }: G
 
                 {/* Name & Symbol */}
                 <div className={`${compact ? "col-span-3" : "col-span-4"} flex items-center gap-3`}>
-                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary/20 to-accent/10 flex items-center justify-center ring-1 ring-white/[0.08]">
+                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary/20 to-accent/10 flex items-center justify-center ring-1 ring-border">
                     <span className="text-xs font-bold text-primary">
                       {asset.symbol.charAt(0)}
                     </span>
                   </div>
                   <div className="min-w-0">
                     <div className="flex items-center gap-2">
-                      <span className="font-semibold text-sm text-white truncate">{asset.symbol}</span>
+                      <span className="font-semibold text-sm text-foreground truncate">{asset.symbol}</span>
                       {tradeable && (
                         <Badge variant="outline" className="text-[9px] px-1 py-0 text-primary border-primary/30">
                           DEX
@@ -285,7 +285,7 @@ const GlobalLeaderboard = ({ limit = 50, compact = false, showHeader = true }: G
 
                 {/* Price */}
                 <div className="col-span-2 flex items-center justify-end">
-                  <span className="font-mono text-sm font-medium text-white">
+                  <span className="font-mono text-sm font-medium text-foreground">
                     {formatPrice(asset.price)}
                   </span>
                 </div>
