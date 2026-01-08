@@ -23,9 +23,9 @@ const DashboardHeader = ({ onSignOut }: DashboardHeaderProps) => {
       <div className="container mx-auto px-4 h-16 flex items-center justify-between">
         <Link to="/" className="flex items-center gap-2">
           <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-accent flex items-center justify-center">
-            <span className="text-primary-foreground font-bold text-lg">T</span>
+            <span className="text-primary-foreground font-bold text-lg">A</span>
           </div>
-          <span className="font-display font-bold text-xl">TradeFlow</span>
+          <span className="font-display font-bold text-xl">Arbah.co</span>
         </Link>
 
         <div className="flex items-center gap-3">
