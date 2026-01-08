@@ -16,6 +16,7 @@ import AuditLog from "@/components/settings/AuditLog";
 import DangerZone from "@/components/settings/DangerZone";
 import SafetyTriggers from "@/components/safety/SafetyTriggers";
 import MultiWalletManager from "@/components/wallet/MultiWalletManager";
+import WalletAssets from "@/components/wallet/WalletAssets";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 
@@ -460,7 +461,10 @@ const DashboardSettings = () => {
 
           {/* Wallets Tab */}
           <TabsContent value="wallets">
-            <MultiWalletManager />
+            <div className="space-y-6">
+              <WalletAssets />
+              <MultiWalletManager />
+            </div>
           </TabsContent>
 
           {/* Safety Tab */}

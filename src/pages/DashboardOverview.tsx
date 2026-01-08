@@ -27,6 +27,7 @@ import {
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useMarket } from "@/contexts/MarketContext";
+import TotalBalanceCard from "@/components/dashboard/TotalBalanceCard";
 import { useNavigate } from "react-router-dom";
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
 import FeedbackButton from "@/components/feedback/FeedbackButton";
@@ -119,29 +120,13 @@ const DashboardOverview = () => {
             </Card>
           </motion.div>
 
-          {/* Net Profit Card */}
+          {/* Total Balance Card - Real Wallet Data */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.05 }}
           >
-            <Card className="glass glass-border h-full hover:border-green-500/30 transition-all group">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between mb-3">
-                  <div className="p-2 rounded-lg bg-green-500/10 group-hover:bg-green-500/20 transition-colors">
-                    <TrendingUp className="h-5 w-5 text-green-400" />
-                  </div>
-                  <Badge variant="outline" className="text-[10px] border-green-500/30 text-green-400">
-                    +24.5%
-                  </Badge>
-                </div>
-                <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">Net Profit</p>
-                <p className="text-3xl font-bold font-mono text-green-400">
-                  +$12,450
-                </p>
-                <p className="text-xs text-muted-foreground mt-2">This month</p>
-              </CardContent>
-            </Card>
+            <TotalBalanceCard />
           </motion.div>
 
           {/* Active Projects Card */}
