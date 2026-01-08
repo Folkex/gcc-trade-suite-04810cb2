@@ -1,4 +1,6 @@
-import React, { createContext, useContext, useState, useEffect, useCallback, ReactNode } from "react";
+import React, { createContext, useContext, useState, useEffect, useCallback, useRef, ReactNode } from "react";
+
+export type TokenSource = "new" | "trending";
 
 export interface DexScreenerPair {
   id: string;
@@ -18,24 +20,34 @@ export interface DexScreenerPair {
   icon?: string;
   dexId: string;
   url: string;
+  source: TokenSource; // "new" = from latest profiles, "trending" = from top boosts
+  previousPrice?: number; // For tracking price changes
 }
 
 interface MarketContextType {
-  // Data
-  marketData: DexScreenerPair[];
+  // Data Streams
+  newTokens: DexScreenerPair[]; // From token-profiles/latest
+  trendingTokens: DexScreenerPair[]; // From token-boosts/top
+  allTokens: DexScreenerPair[]; // Combined and deduplicated
+  
+  // Computed
   topGainer: DexScreenerPair | null;
   topVolume: DexScreenerPair | null;
   trendingToken: DexScreenerPair | null;
+  
+  // Legacy compatibility
+  marketData: DexScreenerPair[];
   
   // State
   loading: boolean;
   error: string | null;
   lastUpdated: Date | null;
-  isLive: boolean; // True when using real API data, false when using mock
+  isLive: boolean;
   
   // Actions
   refresh: () => Promise<void>;
   getTokenByAddress: (address: string) => DexScreenerPair | undefined;
+  getAllTokens: () => DexScreenerPair[];
 }
 
 const chainMap: Record<string, string> = {
@@ -49,11 +61,52 @@ const chainMap: Record<string, string> = {
   optimism: "OP",
 };
 
-// Mock data fallback when API fails
-const MOCK_PAIRS: DexScreenerPair[] = [
+// Mock data fallback
+const MOCK_NEW_TOKENS: DexScreenerPair[] = [
   {
-    id: "mock-1",
-    pairAddress: "0x1234...mock",
+    id: "mock-new-1",
+    pairAddress: "new-1",
+    tokenAddress: "NEW111111111111111111111111111111111111111",
+    name: "Fresh Token",
+    symbol: "FRESH",
+    chain: "SOL",
+    chainId: "solana",
+    launchedAt: new Date(Date.now() - 60000), // 1 min ago
+    liquidity: 50000,
+    volume24h: 125000,
+    priceUsd: 0.0001,
+    priceChange24h: 150.5,
+    buys24h: 500,
+    sells24h: 50,
+    dexId: "raydium",
+    url: "https://dexscreener.com/solana/mock",
+    source: "new",
+  },
+  {
+    id: "mock-new-2",
+    pairAddress: "new-2",
+    tokenAddress: "NEW222222222222222222222222222222222222222",
+    name: "Just Launched",
+    symbol: "JUST",
+    chain: "SOL",
+    chainId: "solana",
+    launchedAt: new Date(Date.now() - 120000),
+    liquidity: 25000,
+    volume24h: 80000,
+    priceUsd: 0.00005,
+    priceChange24h: 89.2,
+    buys24h: 320,
+    sells24h: 30,
+    dexId: "raydium",
+    url: "https://dexscreener.com/solana/mock",
+    source: "new",
+  },
+];
+
+const MOCK_TRENDING_TOKENS: DexScreenerPair[] = [
+  {
+    id: "mock-trend-1",
+    pairAddress: "trend-1",
     tokenAddress: "So11111111111111111111111111111111111111112",
     name: "Wrapped SOL",
     symbol: "SOL",
@@ -68,46 +121,11 @@ const MOCK_PAIRS: DexScreenerPair[] = [
     sells24h: 8320,
     dexId: "raydium",
     url: "https://dexscreener.com/solana/mock",
+    source: "trending",
   },
   {
-    id: "mock-2",
-    pairAddress: "0x5678...mock",
-    tokenAddress: "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
-    name: "USD Coin",
-    symbol: "USDC",
-    chain: "SOL",
-    chainId: "solana",
-    launchedAt: new Date(),
-    liquidity: 25000000,
-    volume24h: 12000000,
-    priceUsd: 1.0,
-    priceChange24h: 0.01,
-    buys24h: 25000,
-    sells24h: 24800,
-    dexId: "raydium",
-    url: "https://dexscreener.com/solana/mock",
-  },
-  {
-    id: "mock-3",
-    pairAddress: "0x9012...mock",
-    tokenAddress: "JUPyiwrYJFskUPiHa7hkeR8VUtAeFoSYbKedZNsDvCN",
-    name: "Jupiter",
-    symbol: "JUP",
-    chain: "SOL",
-    chainId: "solana",
-    launchedAt: new Date(),
-    liquidity: 5000000,
-    volume24h: 3200000,
-    priceUsd: 0.89,
-    priceChange24h: -2.15,
-    buys24h: 8500,
-    sells24h: 9200,
-    dexId: "raydium",
-    url: "https://dexscreener.com/solana/mock",
-  },
-  {
-    id: "mock-4",
-    pairAddress: "0x3456...mock",
+    id: "mock-trend-2",
+    pairAddress: "trend-2",
     tokenAddress: "DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263",
     name: "Bonk",
     symbol: "BONK",
@@ -122,24 +140,7 @@ const MOCK_PAIRS: DexScreenerPair[] = [
     sells24h: 12000,
     dexId: "raydium",
     url: "https://dexscreener.com/solana/mock",
-  },
-  {
-    id: "mock-5",
-    pairAddress: "0x7890...mock",
-    tokenAddress: "mSoLzYCxHdYgdzU16g5QSh3i5K3z3KZK7ytfqcJm7So",
-    name: "Marinade Staked SOL",
-    symbol: "mSOL",
-    chain: "SOL",
-    chainId: "solana",
-    launchedAt: new Date(),
-    liquidity: 8000000,
-    volume24h: 1800000,
-    priceUsd: 198.5,
-    priceChange24h: 2.89,
-    buys24h: 3200,
-    sells24h: 2900,
-    dexId: "raydium",
-    url: "https://dexscreener.com/solana/mock",
+    source: "trending",
   },
 ];
 
@@ -150,131 +151,293 @@ interface MarketProviderProps {
 }
 
 export function MarketProvider({ children }: MarketProviderProps) {
-  const [marketData, setMarketData] = useState<DexScreenerPair[]>([]);
+  const [newTokens, setNewTokens] = useState<DexScreenerPair[]>([]);
+  const [trendingTokens, setTrendingTokens] = useState<DexScreenerPair[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
   const [isLive, setIsLive] = useState(false);
+  
+  // Track previous prices for flash animations
+  const previousPricesRef = useRef<Map<string, number>>(new Map());
+  const isInitialFetchRef = useRef(true);
 
+  // Fetch token details by address to get price data
+  const fetchTokenDetails = async (tokenAddress: string): Promise<Partial<DexScreenerPair> | null> => {
+    try {
+      const response = await fetch(`https://api.dexscreener.com/latest/dex/tokens/${tokenAddress}`);
+      if (!response.ok) return null;
+      
+      const data = await response.json();
+      const pairs = data.pairs || [];
+      if (pairs.length === 0) return null;
+      
+      // Get the pair with highest liquidity
+      const bestPair = pairs.reduce((best: any, current: any) => {
+        const currentLiq = current.liquidity?.usd || 0;
+        const bestLiq = best.liquidity?.usd || 0;
+        return currentLiq > bestLiq ? current : best;
+      }, pairs[0]);
+      
+      return {
+        pairAddress: bestPair.pairAddress,
+        name: bestPair.baseToken?.name || "Unknown",
+        symbol: bestPair.baseToken?.symbol || "???",
+        liquidity: bestPair.liquidity?.usd || 0,
+        volume24h: bestPair.volume?.h24 || 0,
+        priceUsd: parseFloat(bestPair.priceUsd) || 0,
+        priceChange24h: bestPair.priceChange?.h24 || 0,
+        buys24h: bestPair.txns?.h24?.buys || 0,
+        sells24h: bestPair.txns?.h24?.sells || 0,
+        dexId: bestPair.dexId || "unknown",
+        chainId: bestPair.chainId || "solana",
+        chain: chainMap[bestPair.chainId] || bestPair.chainId?.toUpperCase() || "???",
+        icon: bestPair.info?.imageUrl,
+      };
+    } catch {
+      return null;
+    }
+  };
+
+  // Fetch NEW tokens from token-profiles/latest
+  const fetchNewTokens = useCallback(async (): Promise<DexScreenerPair[]> => {
+    console.log("🆕 [MarketContext] Fetching NEW tokens...");
+    
+    try {
+      const response = await fetch("https://api.dexscreener.com/token-profiles/latest/v1");
+      
+      if (!response.ok) {
+        throw new Error(`New tokens API returned ${response.status}`);
+      }
+      
+      const data = await response.json();
+      console.log("📦 [MarketContext] New tokens received:", data?.length || 0);
+      
+      if (!Array.isArray(data) || data.length === 0) {
+        return MOCK_NEW_TOKENS;
+      }
+      
+      // Process tokens in parallel (limit to first 15 for performance)
+      const tokenPromises = data.slice(0, 15).map(async (profile: any): Promise<DexScreenerPair | null> => {
+        const tokenAddress = profile.tokenAddress || profile.address;
+        if (!tokenAddress) return null;
+        
+        // Get previous price for flash animation
+        const prevPrice = previousPricesRef.current.get(tokenAddress);
+        
+        // Fetch detailed token data
+        const details = await fetchTokenDetails(tokenAddress);
+        
+        const token: DexScreenerPair = {
+          id: `new-${tokenAddress}`,
+          pairAddress: details?.pairAddress || tokenAddress,
+          tokenAddress: tokenAddress,
+          name: details?.name || profile.name || profile.header || "Unknown",
+          symbol: details?.symbol || profile.symbol || "???",
+          chain: details?.chain || chainMap[profile.chainId] || "SOL",
+          chainId: details?.chainId || profile.chainId || "solana",
+          launchedAt: new Date(),
+          liquidity: details?.liquidity || 0,
+          volume24h: details?.volume24h || 0,
+          priceUsd: details?.priceUsd || 0,
+          priceChange24h: details?.priceChange24h || 0,
+          buys24h: details?.buys24h || 0,
+          sells24h: details?.sells24h || 0,
+          icon: details?.icon || profile.icon || profile.header,
+          dexId: details?.dexId || "unknown",
+          url: profile.url || `https://dexscreener.com/${profile.chainId}/${tokenAddress}`,
+          source: "new",
+          previousPrice: prevPrice,
+        };
+        
+        // Store current price for next update
+        if (token.priceUsd > 0) {
+          previousPricesRef.current.set(tokenAddress, token.priceUsd);
+        }
+        
+        return token;
+      });
+      
+      const results = await Promise.all(tokenPromises);
+      return results.filter((t): t is DexScreenerPair => t !== null && t.priceUsd > 0);
+    } catch (err) {
+      console.error("❌ [MarketContext] New tokens fetch error:", err);
+      return MOCK_NEW_TOKENS;
+    }
+  }, []);
+
+  // Fetch TRENDING tokens from token-boosts/top
+  const fetchTrendingTokens = useCallback(async (): Promise<DexScreenerPair[]> => {
+    console.log("🔥 [MarketContext] Fetching TRENDING tokens...");
+    
+    try {
+      const response = await fetch("https://api.dexscreener.com/token-boosts/top/v1");
+      
+      if (!response.ok) {
+        throw new Error(`Trending API returned ${response.status}`);
+      }
+      
+      const data = await response.json();
+      console.log("📦 [MarketContext] Trending tokens received:", data?.length || 0);
+      
+      if (!Array.isArray(data) || data.length === 0) {
+        return MOCK_TRENDING_TOKENS;
+      }
+      
+      // Process tokens in parallel (limit to first 20)
+      const tokenPromises = data.slice(0, 20).map(async (boost: any): Promise<DexScreenerPair | null> => {
+        const tokenAddress = boost.tokenAddress || boost.address;
+        if (!tokenAddress) return null;
+        
+        // Get previous price for flash animation
+        const prevPrice = previousPricesRef.current.get(tokenAddress);
+        
+        // Fetch detailed token data
+        const details = await fetchTokenDetails(tokenAddress);
+        
+        const token: DexScreenerPair = {
+          id: `trend-${tokenAddress}`,
+          pairAddress: details?.pairAddress || tokenAddress,
+          tokenAddress: tokenAddress,
+          name: details?.name || boost.name || boost.description || "Unknown",
+          symbol: details?.symbol || boost.symbol || "???",
+          chain: details?.chain || chainMap[boost.chainId] || "SOL",
+          chainId: details?.chainId || boost.chainId || "solana",
+          launchedAt: new Date(),
+          liquidity: details?.liquidity || 0,
+          volume24h: details?.volume24h || 0,
+          priceUsd: details?.priceUsd || 0,
+          priceChange24h: details?.priceChange24h || 0,
+          buys24h: details?.buys24h || 0,
+          sells24h: details?.sells24h || 0,
+          icon: details?.icon || boost.icon || boost.header,
+          dexId: details?.dexId || "unknown",
+          url: boost.url || `https://dexscreener.com/${boost.chainId}/${tokenAddress}`,
+          source: "trending",
+          previousPrice: prevPrice,
+        };
+        
+        // Store current price for next update
+        if (token.priceUsd > 0) {
+          previousPricesRef.current.set(tokenAddress, token.priceUsd);
+        }
+        
+        return token;
+      });
+      
+      const results = await Promise.all(tokenPromises);
+      return results.filter((t): t is DexScreenerPair => t !== null && t.priceUsd > 0);
+    } catch (err) {
+      console.error("❌ [MarketContext] Trending fetch error:", err);
+      return MOCK_TRENDING_TOKENS;
+    }
+  }, []);
+
+  // Main fetch function - fetches both streams in parallel
   const fetchMarketData = useCallback(async () => {
-    console.log("🔄 [MarketContext] Fetching market data...");
-    setLoading(true);
+    const isInitial = isInitialFetchRef.current;
+    if (isInitial) {
+      console.log("🚀 [MarketContext] Initial fetch...");
+      setLoading(true);
+    } else {
+      console.log("🔄 [MarketContext] Background refresh...");
+    }
     setError(null);
 
     try {
-      const searchUrl = "https://api.dexscreener.com/latest/dex/search?q=solana";
-      console.log("📡 [MarketContext] Requesting:", searchUrl);
-
-      const response = await fetch(searchUrl);
-      console.log("📥 [MarketContext] Response status:", response.status);
-
-      if (!response.ok) {
-        throw new Error(`API returned status ${response.status}`);
-      }
-
-      const data = await response.json();
-      console.log("📦 [MarketContext] Data received:", data);
-
-      const allPairs = data.pairs || [];
-      console.log("📊 [MarketContext] Total pairs found:", allPairs.length);
-
-      if (allPairs.length === 0) {
-        console.warn("⚠️ [MarketContext] No pairs returned, using mock data");
-        setMarketData(MOCK_PAIRS);
-        setIsLive(false);
-        setLastUpdated(new Date());
-        return;
-      }
-
-      // Convert to our format, taking unique tokens
-      const seenTokens = new Set<string>();
-      const formattedPairs: DexScreenerPair[] = [];
-
-      for (const pair of allPairs) {
-        if (!pair.baseToken || seenTokens.has(pair.baseToken.address)) {
-          continue;
-        }
-        seenTokens.add(pair.baseToken.address);
-
-        formattedPairs.push({
-          id: pair.pairAddress,
-          pairAddress: pair.pairAddress,
-          tokenAddress: pair.baseToken.address,
-          name: pair.baseToken.name || "Unknown",
-          symbol: pair.baseToken.symbol || "???",
-          chain: chainMap[pair.chainId] || pair.chainId?.toUpperCase() || "???",
-          chainId: pair.chainId || "unknown",
-          launchedAt: pair.pairCreatedAt ? new Date(pair.pairCreatedAt) : new Date(),
-          liquidity: pair.liquidity?.usd || 0,
-          volume24h: pair.volume?.h24 || 0,
-          priceUsd: parseFloat(pair.priceUsd) || 0,
-          priceChange24h: pair.priceChange?.h24 || 0,
-          buys24h: pair.txns?.h24?.buys || 0,
-          sells24h: pair.txns?.h24?.sells || 0,
-          icon: pair.info?.imageUrl,
-          dexId: pair.dexId || "unknown",
-          url: pair.url || "",
-        });
-
-        // Limit to 30 unique tokens
-        if (formattedPairs.length >= 30) break;
-      }
-
-      console.log("✅ [MarketContext] Formatted pairs:", formattedPairs.length);
-
-      // Sort by volume descending
-      formattedPairs.sort((a, b) => b.volume24h - a.volume24h);
-
-      setMarketData(formattedPairs);
-      setIsLive(true);
+      // Fetch both streams in parallel
+      const [newData, trendingData] = await Promise.all([
+        fetchNewTokens(),
+        fetchTrendingTokens(),
+      ]);
+      
+      console.log(`✅ [MarketContext] Fetched ${newData.length} new + ${trendingData.length} trending`);
+      
+      setNewTokens(newData);
+      setTrendingTokens(trendingData);
+      setIsLive(newData.length > 0 || trendingData.length > 0);
       setLastUpdated(new Date());
+      isInitialFetchRef.current = false;
     } catch (err) {
       console.error("❌ [MarketContext] Fetch error:", err);
       setError(err instanceof Error ? err.message : "Failed to fetch data");
-
-      // Fallback to mock data on error
-      console.log("🔄 [MarketContext] Falling back to mock data");
-      setMarketData(MOCK_PAIRS);
+      
+      // Fallback to mock data
+      setNewTokens(MOCK_NEW_TOKENS);
+      setTrendingTokens(MOCK_TRENDING_TOKENS);
       setIsLive(false);
       setLastUpdated(new Date());
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [fetchNewTokens, fetchTrendingTokens]);
 
-  // Initial fetch and auto-refresh
+  // Initial fetch and 3-second live polling
   useEffect(() => {
-    console.log("🚀 [MarketContext] Mounted, triggering initial fetch");
+    console.log("🚀 [MarketContext] Starting live polling (3s interval)");
     fetchMarketData();
 
-    // Auto-refresh every 30 seconds
+    // Live polling every 3 seconds
     const interval = setInterval(() => {
-      console.log("⏰ [MarketContext] Auto-refresh triggered");
       fetchMarketData();
-    }, 30000);
+    }, 3000);
 
     return () => {
-      console.log("🛑 [MarketContext] Unmounted, clearing interval");
+      console.log("🛑 [MarketContext] Stopping live polling");
       clearInterval(interval);
     };
   }, [fetchMarketData]);
 
+  // Combine and deduplicate all tokens
+  const allTokens = React.useMemo(() => {
+    const seen = new Set<string>();
+    const combined: DexScreenerPair[] = [];
+    
+    // Add trending first (they take priority)
+    for (const token of trendingTokens) {
+      if (!seen.has(token.tokenAddress)) {
+        seen.add(token.tokenAddress);
+        combined.push(token);
+      }
+    }
+    
+    // Add new tokens
+    for (const token of newTokens) {
+      if (!seen.has(token.tokenAddress)) {
+        seen.add(token.tokenAddress);
+        combined.push(token);
+      }
+    }
+    
+    return combined;
+  }, [newTokens, trendingTokens]);
+
+  // Legacy marketData for compatibility (trending first, then new)
+  const marketData = allTokens;
+
   // Computed values
-  const topGainer = marketData.length > 0
-    ? marketData.reduce((best, curr) => (curr.priceChange24h > best.priceChange24h ? curr : best), marketData[0])
+  const topGainer = allTokens.length > 0
+    ? allTokens.reduce((best, curr) => (curr.priceChange24h > best.priceChange24h ? curr : best), allTokens[0])
     : null;
 
-  const topVolume = marketData.length > 0
-    ? marketData.reduce((best, curr) => (curr.volume24h > best.volume24h ? curr : best), marketData[0])
+  const topVolume = allTokens.length > 0
+    ? allTokens.reduce((best, curr) => (curr.volume24h > best.volume24h ? curr : best), allTokens[0])
     : null;
 
-  const trendingToken = marketData.length > 0 ? marketData[0] : null;
+  const trendingToken = trendingTokens.length > 0 ? trendingTokens[0] : (allTokens[0] || null);
 
-  const getTokenByAddress = (address: string) => {
-    return marketData.find((p) => p.tokenAddress === address);
-  };
+  const getTokenByAddress = useCallback((address: string) => {
+    return allTokens.find((p) => p.tokenAddress === address);
+  }, [allTokens]);
+
+  const getAllTokens = useCallback(() => {
+    return allTokens;
+  }, [allTokens]);
 
   const value: MarketContextType = {
+    newTokens,
+    trendingTokens,
+    allTokens,
     marketData,
     topGainer,
     topVolume,
@@ -285,6 +448,7 @@ export function MarketProvider({ children }: MarketProviderProps) {
     isLive,
     refresh: fetchMarketData,
     getTokenByAddress,
+    getAllTokens,
   };
 
   return <MarketContext.Provider value={value}>{children}</MarketContext.Provider>;

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
   Crosshair, 
@@ -14,7 +14,8 @@ import {
   RefreshCw,
   Volume2,
   Loader2,
-  AlertCircle
+  AlertCircle,
+  Sparkles,
 } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -74,6 +75,39 @@ const formatPrice = (price: number) => {
   if (price < 0.01) return `$${price.toFixed(6)}`;
   if (price < 1) return `$${price.toFixed(4)}`;
   return `$${price.toFixed(2)}`;
+};
+
+// Price cell with flash animation on change
+const PriceCell = ({ price, previousPrice }: { price: number; previousPrice?: number }) => {
+  const [flash, setFlash] = useState<'up' | 'down' | null>(null);
+  const prevPriceRef = useRef<number | undefined>(previousPrice);
+  
+  useEffect(() => {
+    if (prevPriceRef.current !== undefined && price !== prevPriceRef.current) {
+      if (price > prevPriceRef.current) {
+        setFlash('up');
+      } else if (price < prevPriceRef.current) {
+        setFlash('down');
+      }
+      const timeout = setTimeout(() => setFlash(null), 500);
+      return () => clearTimeout(timeout);
+    }
+    prevPriceRef.current = price;
+  }, [price]);
+  
+  return (
+    <span 
+      className={`transition-all duration-300 ${
+        flash === 'up' 
+          ? 'text-success bg-success/20 px-1 rounded scale-105' 
+          : flash === 'down' 
+            ? 'text-destructive bg-destructive/20 px-1 rounded scale-105' 
+            : ''
+      }`}
+    >
+      {formatPrice(price)}
+    </span>
+  );
 };
 
 const TableSkeleton = () => (
@@ -379,6 +413,7 @@ const MarketSniper = () => {
                   <TableHeader>
                     <TableRow>
                       <TableHead className="font-mono text-xs text-primary whitespace-nowrap">TOKEN</TableHead>
+                      <TableHead className="font-mono text-xs text-primary whitespace-nowrap hidden sm:table-cell">TYPE</TableHead>
                       <TableHead className="font-mono text-xs text-primary whitespace-nowrap hidden sm:table-cell">CHAIN</TableHead>
                       <TableHead className="font-mono text-xs text-primary whitespace-nowrap hidden md:table-cell">AGE</TableHead>
                       <TableHead className="font-mono text-xs text-primary whitespace-nowrap">PRICE</TableHead>
@@ -394,7 +429,7 @@ const MarketSniper = () => {
                       <TableSkeleton />
                     ) : filteredPairs.length === 0 ? (
                       <TableRow>
-                        <TableCell colSpan={9} className="text-center py-8">
+                        <TableCell colSpan={10} className="text-center py-8">
                           <p className="text-muted-foreground font-mono">No tokens found matching your filters</p>
                         </TableCell>
                       </TableRow>
@@ -434,6 +469,20 @@ const MarketSniper = () => {
                                 </div>
                               </div>
                             </TableCell>
+                            {/* Source Badge - New vs Hot */}
+                            <TableCell className="hidden sm:table-cell">
+                              {pair.source === "new" ? (
+                                <Badge className="bg-blue-500/20 text-blue-400 border-blue-500/30 text-[10px] gap-1">
+                                  <Sparkles className="h-3 w-3" />
+                                  NEW
+                                </Badge>
+                              ) : (
+                                <Badge className="bg-orange-500/20 text-orange-400 border-orange-500/30 text-[10px] gap-1">
+                                  <Flame className="h-3 w-3" />
+                                  HOT
+                                </Badge>
+                              )}
+                            </TableCell>
                             <TableCell className="hidden sm:table-cell">
                               <Badge variant="outline" className={`${chainColors[pair.chain] || 'bg-muted'} text-[10px]`}>
                                 {pair.chain}
@@ -445,8 +494,9 @@ const MarketSniper = () => {
                                 {getTimeAgo(pair.launchedAt)}
                               </div>
                             </TableCell>
+                            {/* Price with flash animation */}
                             <TableCell className="font-mono text-xs sm:text-sm whitespace-nowrap">
-                              {formatPrice(pair.priceUsd)}
+                              <PriceCell price={pair.priceUsd} previousPrice={pair.previousPrice} />
                             </TableCell>
                             <TableCell className="font-mono text-xs sm:text-sm">
                               <div className="flex items-center gap-1 text-blue-500 whitespace-nowrap">
