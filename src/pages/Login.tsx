@@ -54,9 +54,9 @@ const Login = () => {
           >
             <div className="flex items-center justify-center gap-2 mb-8">
               <div className="w-12 h-12 bg-primary rounded-xl flex items-center justify-center">
-                <TrendingUp className="w-7 h-7 text-primary-foreground" />
+                <span className="text-xl font-bold text-primary-foreground">A</span>
               </div>
-              <span className="text-3xl font-bold text-foreground">TradePro</span>
+              <span className="text-3xl font-bold text-foreground">Arbah.co</span>
             </div>
             <h1 className="text-4xl font-bold text-foreground mb-4">
               Welcome Back
@@ -76,12 +76,11 @@ const Login = () => {
           transition={{ duration: 0.6 }}
           className="w-full max-w-md"
         >
-          {/* Mobile logo */}
           <div className="lg:hidden flex items-center justify-center gap-2 mb-8">
             <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center">
-              <TrendingUp className="w-6 h-6 text-primary-foreground" />
+              <span className="text-lg font-bold text-primary-foreground">A</span>
             </div>
-            <span className="text-2xl font-bold text-foreground">TradePro</span>
+            <span className="text-2xl font-bold text-foreground">Arbah.co</span>
           </div>
 
           <div className="text-center mb-8">

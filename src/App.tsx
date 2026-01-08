@@ -29,6 +29,7 @@ import CopyTrading from "./pages/CopyTrading";
 import GemFinder from "./pages/GemFinder";
 import TokenAnalyzer from "./pages/TokenAnalyzer";
 import TradeTerminal from "./pages/TradeTerminal";
+import Markets from "./pages/Markets";
 
 // Finance Section
 import Wallet from "./pages/Wallet";
@@ -82,6 +83,7 @@ function App() {
                 <Route path="/gem-finder" element={<GemFinder />} />
                 <Route path="/token/:id" element={<TokenAnalyzer />} />
                 <Route path="/trade" element={<TradeTerminal />} />
+                <Route path="/markets" element={<Markets />} />
 
                 {/* Finance Section */}
                 <Route path="/wallet" element={<Wallet />} />
