@@ -55,6 +55,8 @@ import { useDexScreenerToken } from "@/hooks/useDexScreener";
 import { useMarket, DexScreenerPair } from "@/contexts/MarketContext";
 import { useDexScreenerRealtime } from "@/hooks/useDexScreenerWebSocket";
 import { TokenSearchBar } from "@/components/trade/TokenSearchBar";
+import { useRequireWallet } from "@/hooks/useRequireWallet";
+import ConnectWalletButton from "@/components/wallet/ConnectWalletButton";
 
 interface TokenData {
   id: string;
@@ -874,10 +876,18 @@ interface SwapFormProps {
 }
 
 const SwapForm = ({ tradeType, payAmount, setPayAmount, receiveAmount, token, onSwap }: SwapFormProps) => {
+  const { requireWallet, isConnected } = useRequireWallet();
+  
   const formatNumber = (value: number) => {
     if (value >= 1000000) return `${(value / 1000000).toFixed(2)}M`;
     if (value >= 1000) return `${(value / 1000).toFixed(1)}K`;
     return value.toFixed(2);
+  };
+
+  const handleSwap = () => {
+    if (requireWallet('trade')) {
+      onSwap();
+    }
   };
 
   return (
@@ -938,18 +948,22 @@ const SwapForm = ({ tradeType, payAmount, setPayAmount, receiveAmount, token, on
         </div>
       </div>
       
-      {/* Swap Button */}
-      <Button 
-        onClick={onSwap}
-        className={`w-full h-14 text-lg font-mono font-bold ${
-          tradeType === 'buy' 
-            ? 'bg-success text-success-foreground hover:bg-success/90' 
-            : 'bg-destructive text-destructive-foreground hover:bg-destructive/90'
-        }`}
-      >
-        <Zap className="h-5 w-5 mr-2" />
-        SWAP
-      </Button>
+      {/* Connect Wallet or Swap Button */}
+      {!isConnected ? (
+        <ConnectWalletButton className="w-full h-14 text-lg font-mono font-bold" />
+      ) : (
+        <Button 
+          onClick={handleSwap}
+          className={`w-full h-14 text-lg font-mono font-bold ${
+            tradeType === 'buy' 
+              ? 'bg-success text-success-foreground hover:bg-success/90' 
+              : 'bg-destructive text-destructive-foreground hover:bg-destructive/90'
+          }`}
+        >
+          <Zap className="h-5 w-5 mr-2" />
+          SWAP
+        </Button>
+      )}
       
       {/* Info */}
       <div className="flex items-center gap-2 text-xs text-muted-foreground font-mono">

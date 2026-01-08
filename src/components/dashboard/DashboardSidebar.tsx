@@ -34,7 +34,9 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
 import { useMarket } from "@/contexts/MarketContext";
+import { useWallet } from "@/contexts/WalletContext";
 import InstallAppButton from "@/components/mobile/InstallAppButton";
+import ConnectWalletButton from "@/components/wallet/ConnectWalletButton";
 import {
   Collapsible,
   CollapsibleContent,
@@ -357,6 +359,15 @@ const DashboardSidebar = ({ collapsed, onToggle }: DashboardSidebarProps) => {
             <p>{isLive ? "Connected to DexScreener API" : "Using offline/cached data"}</p>
           </TooltipContent>
         </Tooltip>
+      </div>
+
+      {/* Wallet Connect Button */}
+      <div className="px-3 pb-2">
+        {collapsed ? (
+          <ConnectWalletButton variant="icon" className="w-full" />
+        ) : (
+          <ConnectWalletButton className="w-full" />
+        )}
       </div>
 
       {/* Install App Button (Mobile Only) */}
