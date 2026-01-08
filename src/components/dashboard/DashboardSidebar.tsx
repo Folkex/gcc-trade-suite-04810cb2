@@ -191,16 +191,16 @@ const DashboardSidebar = ({ collapsed, onToggle }: DashboardSidebarProps) => {
               className="flex items-center gap-2"
             >
               <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-primary/50 flex items-center justify-center">
-                <Target className="w-4 h-4 text-primary-foreground" />
+                <span className="text-primary-foreground font-bold text-sm">A</span>
               </div>
-              <span className="font-bold text-lg font-mono text-foreground">TradeFlow</span>
+              <span className="font-bold text-lg font-mono text-foreground">Arbah.co</span>
             </motion.div>
           )}
         </AnimatePresence>
         
         {collapsed && (
           <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-primary/50 flex items-center justify-center mx-auto">
-            <Target className="w-4 h-4 text-primary-foreground" />
+            <span className="text-primary-foreground font-bold text-sm">A</span>
           </div>
         )}
       </div>

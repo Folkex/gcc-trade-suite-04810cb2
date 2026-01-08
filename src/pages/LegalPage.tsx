@@ -19,117 +19,117 @@ const legalContent = {
   terms: {
     title: "Terms of Service",
     icon: FileText,
-    lastUpdated: "January 1, 2025",
+    lastUpdated: "January 8, 2025",
     sections: [
       {
         title: "1. Acceptance of Terms",
-        content: "By accessing and using TradeFlow, you accept and agree to be bound by the terms and provisions of this agreement. If you do not agree to abide by these terms, please do not use this service."
+        content: "By accessing and using Arbah.co, you accept and agree to be bound by the terms and provisions of this agreement. If you do not agree to abide by these terms, please do not use this service. Arbah.co is a trading platform designed to provide market intelligence and trading tools for cryptocurrency markets."
       },
       {
         title: "2. Description of Service",
-        content: "TradeFlow provides cryptocurrency trading tools, market analysis, and portfolio management services. We offer features including but not limited to: real-time market data, trading terminals, wallet management, and social trading features."
+        content: "Arbah.co provides cryptocurrency trading tools, real-time market data, portfolio management, and analytics services. Our platform offers features including but not limited to: live market intelligence, trading terminals, wallet management, copy trading, whale watching, and gem finder tools. All data is sourced from reputable market data providers."
       },
       {
         title: "3. User Responsibilities",
-        content: "Users are responsible for maintaining the confidentiality of their account credentials. You agree to notify us immediately of any unauthorized use of your account. Trading cryptocurrencies involves significant risk, and you should only trade with funds you can afford to lose."
+        content: "Users are responsible for maintaining the confidentiality of their account credentials and ensuring the security of their connected wallets. You agree to notify Arbah.co immediately of any unauthorized use of your account. You are solely responsible for all trading decisions made using our platform. Trading cryptocurrencies involves significant risk, and you should only trade with funds you can afford to lose."
       },
       {
         title: "4. Risk Disclosure",
-        content: "Cryptocurrency trading involves substantial risk of loss and is not suitable for every investor. The valuation of cryptocurrencies may fluctuate, and you may lose all or more than your initial investment. Past performance is not indicative of future results."
+        content: "Cryptocurrency trading involves substantial risk of loss and is not suitable for every investor. The valuation of digital assets may fluctuate significantly, and you may lose all or more than your initial investment. Past performance is not indicative of future results. Arbah.co does not provide financial advice, and all information on the platform is for informational purposes only."
       },
       {
         title: "5. Intellectual Property",
-        content: "All content, features, and functionality of TradeFlow are owned by us and are protected by international copyright, trademark, and other intellectual property laws."
+        content: "All content, features, functionality, trademarks, and branding of Arbah.co are owned by Arbah.co and its licensors and are protected by international copyright, trademark, and other intellectual property laws. You may not reproduce, distribute, or create derivative works without our express written permission."
       },
       {
         title: "6. Limitation of Liability",
-        content: "TradeFlow shall not be liable for any indirect, incidental, special, consequential, or punitive damages resulting from your use of the service."
+        content: "Arbah.co shall not be liable for any indirect, incidental, special, consequential, or punitive damages resulting from your use of the service. This includes but is not limited to: loss of profits, data, or other intangible losses arising from trading activities, market conditions, or technical issues."
       },
       {
-        title: "7. Termination",
-        content: "We may terminate or suspend your account and access to the service immediately, without prior notice, for conduct that we believe violates these Terms or is harmful to other users, us, or third parties."
+        title: "7. Account Termination",
+        content: "We may terminate or suspend your account and access to the service immediately, without prior notice, for conduct that we believe violates these Terms, is harmful to other users, us, or third parties, or involves fraudulent or illegal activity. Upon termination, your right to use the service will immediately cease."
       },
       {
-        title: "8. Changes to Terms",
-        content: "We reserve the right to modify these terms at any time. We will notify users of any material changes via email or through the platform."
+        title: "8. Governing Law",
+        content: "These Terms shall be governed by and construed in accordance with applicable laws. Any disputes arising from these terms or your use of Arbah.co shall be resolved through binding arbitration. We reserve the right to modify these terms at any time, and will notify users of material changes via email or platform notification."
       }
     ]
   },
   privacy: {
     title: "Privacy Policy",
     icon: Shield,
-    lastUpdated: "January 1, 2025",
+    lastUpdated: "January 8, 2025",
     sections: [
       {
         title: "1. Information We Collect",
-        content: "We collect information you provide directly, including name, email address, and wallet addresses. We also collect usage data, device information, and cookies to improve our service."
+        content: "Arbah.co collects information you provide directly, including: email address, display name, profile information, and wallet addresses you choose to connect. We also automatically collect usage data, device information, IP addresses, browser type, and interaction data to improve our service and provide personalized experiences."
       },
       {
         title: "2. How We Use Your Information",
-        content: "We use your information to provide and maintain our service, notify you about changes, provide customer support, gather analysis to improve the service, and detect and prevent fraud."
+        content: "We use your information to: provide and maintain our trading platform, process your transactions, send important notifications about your account and market activity, provide customer support, analyze usage patterns to improve the service, detect and prevent fraud or abuse, and comply with legal obligations."
       },
       {
         title: "3. Data Security",
-        content: "We implement industry-standard security measures including encryption, secure servers, and regular security audits to protect your personal information."
+        content: "Arbah.co implements industry-standard security measures including: end-to-end encryption for sensitive data, secure servers with regular security audits, two-factor authentication options, and strict access controls for employee data access. We never store your private keys or wallet seed phrases."
       },
       {
         title: "4. Third-Party Services",
-        content: "We may employ third-party companies to facilitate our service. These third parties have access to your personal information only to perform specific tasks on our behalf."
+        content: "We integrate with third-party services including market data providers (DexScreener), authentication services, and analytics platforms. These services have their own privacy policies, and we encourage you to review them. We share only the minimum data necessary for these integrations to function."
       },
       {
         title: "5. Data Retention",
-        content: "We retain your personal data only for as long as necessary to provide you with our service and as described in this policy, or as required by law."
+        content: "We retain your personal data for as long as your account is active or as needed to provide services. Trading history and activity logs are retained for compliance purposes. You may request deletion of your data at any time, subject to our legal retention requirements."
       },
       {
         title: "6. Your Rights",
-        content: "You have the right to access, update, or delete your personal information. You can exercise these rights by contacting our support team."
+        content: "You have the right to: access your personal data, correct inaccurate information, request deletion of your data, export your data in a portable format, opt-out of marketing communications, and restrict certain processing activities. Contact support@arbah.co to exercise these rights."
       },
       {
-        title: "7. Cookies",
-        content: "We use cookies and similar tracking technologies to track activity on our service and hold certain information to improve user experience."
+        title: "7. Cookies and Tracking",
+        content: "Arbah.co uses cookies and similar technologies for: maintaining your session, remembering your preferences, analyzing platform usage, and improving user experience. You can manage cookie preferences in your browser settings, though some features may not function properly without cookies."
       },
       {
         title: "8. Contact Us",
-        content: "If you have any questions about this Privacy Policy, please contact us at privacy@tradeflow.app"
+        content: "If you have questions about this Privacy Policy or our data practices, please contact our privacy team at privacy@arbah.co. For general support inquiries, reach us at support@arbah.co. We respond to all privacy-related requests within 30 days."
       }
     ]
   },
   refund: {
     title: "Refund Policy",
     icon: Scale,
-    lastUpdated: "January 1, 2025",
+    lastUpdated: "January 8, 2025",
     sections: [
       {
         title: "1. Overview",
-        content: "This Refund Policy outlines our guidelines for refunds on TradeFlow subscription services and any applicable fees."
+        content: "This Refund Policy outlines Arbah.co's guidelines for refunds on subscription services, premium features, and any applicable platform fees. We strive to provide fair and transparent refund processes for all our users."
       },
       {
         title: "2. Subscription Refunds",
-        content: "Subscription fees are generally non-refundable. However, we may offer refunds in certain circumstances at our discretion, such as technical issues preventing service use."
+        content: "Subscription fees are generally non-refundable once the billing period has started. However, Arbah.co may offer refunds in certain circumstances at our discretion, such as: extended service outages, technical issues preventing platform access, or billing errors on our part."
       },
       {
         title: "3. Eligibility for Refunds",
-        content: "To be eligible for a refund, you must contact us within 7 days of your purchase. Refund requests must include a valid reason and any supporting documentation."
+        content: "To be eligible for a refund, you must: contact our support team within 7 days of your purchase, provide a valid reason for the refund request, include relevant documentation or screenshots if applicable, and not have violated our Terms of Service. First-time subscribers may be eligible for a one-time courtesy refund."
       },
       {
         title: "4. Processing Refunds",
-        content: "Approved refunds will be processed within 5-10 business days. Refunds will be credited to the original payment method used for the purchase."
+        content: "Approved refunds will be processed within 5-10 business days. Refunds will be credited to the original payment method used for the purchase. Processing times may vary depending on your payment provider. You will receive email confirmation when your refund has been processed."
       },
       {
         title: "5. Non-Refundable Items",
-        content: "Trading fees, gas fees, and transaction costs are non-refundable. One-time purchases and promotional offers may also be non-refundable."
+        content: "The following are non-refundable: trading fees and transaction costs, blockchain gas fees, promotional or discounted subscriptions, one-time purchases after the service has been rendered, and accounts terminated for Terms of Service violations."
       },
       {
         title: "6. Chargebacks",
-        content: "Filing a chargeback without first contacting our support team may result in permanent account suspension. We encourage users to resolve issues directly with us."
+        content: "Filing a chargeback with your payment provider without first contacting Arbah.co support may result in immediate and permanent account suspension. We encourage all users to resolve billing issues directly with our support team first. Fraudulent chargebacks may be reported to relevant authorities."
       },
       {
-        title: "7. Cancellation",
-        content: "You may cancel your subscription at any time. Upon cancellation, you will continue to have access until the end of your current billing period."
+        title: "7. Subscription Cancellation",
+        content: "You may cancel your subscription at any time through your account settings. Upon cancellation, you will continue to have access to premium features until the end of your current billing period. No partial refunds are provided for unused portions of a billing period."
       },
       {
         title: "8. Contact for Refunds",
-        content: "For refund requests, please contact our support team at support@tradeflow.app with your account details and reason for the refund request."
+        content: "For refund requests, please contact our support team at support@arbah.co with: your account email, transaction ID or receipt, reason for refund request, and any supporting documentation. Our team will review your request and respond within 2-3 business days."
       }
     ]
   }

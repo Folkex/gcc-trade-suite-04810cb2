@@ -7,7 +7,7 @@ interface FooterProps {
 
 const translations = {
   en: {
-    description: "The ultimate trading super app. Trade, manage, and grow your empire from one command center.",
+    description: "Your gateway to smart cryptocurrency trading. Real-time market data, advanced analytics, and seamless trading experience.",
     platform: "Platform",
     company: "Company",
     legal: "Legal",
@@ -21,18 +21,18 @@ const translations = {
       { label: "About Us", href: "#" },
       { label: "Careers", href: "#" },
       { label: "Blog", href: "#" },
-      { label: "Contact", href: "#" },
+      { label: "Contact", href: "/support" },
     ],
     legalLinks: [
-      { label: "Privacy Policy", href: "#" },
-      { label: "Terms of Service", href: "#" },
-      { label: "Cookie Policy", href: "#" },
+      { label: "Privacy Policy", href: "/legal/privacy" },
+      { label: "Terms of Service", href: "/legal/terms" },
+      { label: "Refund Policy", href: "/legal/refund" },
     ],
-    copyright: "© 2024 TradeFlow. All rights reserved.",
-    regulated: "Regulated by relevant financial authorities.",
+    copyright: "© 2025 Arbah.co. All rights reserved.",
+    regulated: "Licensed and regulated trading platform.",
   },
   ar: {
-    description: "التطبيق الخارق للتداول. تداول وأدِر ونمِّ إمبراطوريتك من مركز قيادة واحد.",
+    description: "بوابتك للتداول الذكي بالعملات المشفرة. بيانات السوق الحية، والتحليلات المتقدمة، وتجربة تداول سلسة.",
     platform: "المنصة",
     company: "الشركة",
     legal: "قانوني",
@@ -46,15 +46,15 @@ const translations = {
       { label: "عن الشركة", href: "#" },
       { label: "الوظائف", href: "#" },
       { label: "المدونة", href: "#" },
-      { label: "اتصل بنا", href: "#" },
+      { label: "اتصل بنا", href: "/support" },
     ],
     legalLinks: [
-      { label: "سياسة الخصوصية", href: "#" },
-      { label: "شروط الخدمة", href: "#" },
-      { label: "سياسة ملفات تعريف الارتباط", href: "#" },
+      { label: "سياسة الخصوصية", href: "/legal/privacy" },
+      { label: "شروط الخدمة", href: "/legal/terms" },
+      { label: "سياسة الاسترداد", href: "/legal/refund" },
     ],
-    copyright: "© 2024 TradeFlow. جميع الحقوق محفوظة.",
-    regulated: "مرخصة من الهيئات المالية المختصة.",
+    copyright: "© 2025 Arbah.co. جميع الحقوق محفوظة.",
+    regulated: "منصة تداول مرخصة ومنظمة.",
   },
 };
 
@@ -70,9 +70,9 @@ const Footer = ({ lang }: FooterProps) => {
           <div className="lg:col-span-2">
             <div className="flex items-center gap-2 mb-4">
               <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-accent flex items-center justify-center shadow-lg shadow-primary/20">
-                <span className="text-primary-foreground font-bold text-lg">T</span>
+                <span className="text-primary-foreground font-bold text-lg">A</span>
               </div>
-              <span className="font-display font-bold text-xl">TradeFlow</span>
+              <span className="font-display font-bold text-xl">Arbah.co</span>
             </div>
             <p className="text-muted-foreground max-w-sm mb-6">{t.description}</p>
             
