@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import { motion } from "framer-motion";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import {
@@ -18,6 +18,7 @@ import {
   Percent,
   Loader2,
   RefreshCw,
+  Radio,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -51,6 +52,8 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
 import { useDexScreenerToken, DexScreenerPair } from "@/hooks/useDexScreener";
+import { useDexScreenerRealtime } from "@/hooks/useDexScreenerWebSocket";
+import { TokenSearchBar } from "@/components/trade/TokenSearchBar";
 
 interface TokenData {
   id: string;
@@ -120,22 +123,50 @@ const TradeTerminal = () => {
   // Fetch real token data from DexScreener
   const { token: dexToken, loading, error, refresh } = useDexScreenerToken(tokenAddress, chainId);
   
-  // Convert DexScreener token to our TokenData format
+  // Real-time price updates (3-second polling)
+  const [realtimeEnabled, setRealtimeEnabled] = useState(true);
+  const { priceData, isConnected, lastUpdate } = useDexScreenerRealtime(tokenAddress, realtimeEnabled);
+  
+  // Merge realtime price with token data
   const token: TokenData = useMemo(() => {
     if (!dexToken) return DEFAULT_TOKEN;
+    
+    // Use realtime price if available, otherwise use initial fetch
+    const currentPrice = priceData?.price ?? dexToken.priceUsd;
+    const currentChange = priceData?.priceChange24h ?? dexToken.priceChange24h;
+    const currentVolume = priceData?.volume24h ?? dexToken.volume24h;
+    
     return {
       id: dexToken.id,
       name: dexToken.name,
       symbol: dexToken.symbol,
-      price: dexToken.priceUsd,
-      change24h: dexToken.priceChange24h,
-      volume24h: dexToken.volume24h,
-      marketCap: dexToken.liquidity, // Using liquidity as a proxy for market cap
+      price: currentPrice,
+      change24h: currentChange,
+      volume24h: currentVolume,
+      marketCap: dexToken.liquidity,
       chain: dexToken.chain,
       tokenAddress: dexToken.tokenAddress,
       liquidity: dexToken.liquidity,
     };
-  }, [dexToken]);
+  }, [dexToken, priceData]);
+  
+  // Track price changes for visual feedback
+  const [priceFlash, setPriceFlash] = useState<'up' | 'down' | null>(null);
+  const previousPriceRef = React.useRef<number | null>(null);
+  
+  useEffect(() => {
+    if (priceData && previousPriceRef.current !== null) {
+      if (priceData.price > previousPriceRef.current) {
+        setPriceFlash('up');
+      } else if (priceData.price < previousPriceRef.current) {
+        setPriceFlash('down');
+      }
+      setTimeout(() => setPriceFlash(null), 500);
+    }
+    if (priceData) {
+      previousPriceRef.current = priceData.price;
+    }
+  }, [priceData]);
   
   const orderBook = useMemo(() => generateOrderBook(token.price || 0.001), [token.price]);
   const recentTrades = useMemo(() => generateRecentTrades(token.price || 0.001), [token.price]);
@@ -148,7 +179,7 @@ const TradeTerminal = () => {
   const [timeframe, setTimeframe] = useState("1h");
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   
-  // New advanced features
+  // Advanced features
   const [stopLoss, setStopLoss] = useState("");
   const [takeProfit, setTakeProfit] = useState("");
   const [enableAlerts, setEnableAlerts] = useState(false);
@@ -168,6 +199,10 @@ const TradeTerminal = () => {
     if (value >= 1000000) return `${(value / 1000000).toFixed(2)}M`;
     if (value >= 1000) return `${(value / 1000).toFixed(1)}K`;
     return value.toFixed(2);
+  };
+  
+  const handleTokenSelect = (selectedToken: DexScreenerPair) => {
+    navigate(`/trade?token=${selectedToken.tokenAddress}&chain=${selectedToken.chainId}`);
   };
 
   return (
@@ -198,16 +233,17 @@ const TradeTerminal = () => {
           </div>
         )}
 
-        {/* No Token Selected */}
+        {/* No Token Selected - Show search */}
         {!tokenAddress && !loading && (
           <div className="flex items-center justify-center h-64">
-            <div className="text-center">
+            <div className="text-center w-full max-w-md px-4">
               <BarChart3 className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
               <p className="text-muted-foreground font-mono mb-2">No token selected</p>
               <p className="text-sm text-muted-foreground mb-4">
-                Select a token from the Sniper Board to start trading
+                Search for a token or go to the Sniper Board
               </p>
-              <Button onClick={() => navigate("/sniper")} variant="default" size="sm">
+              <TokenSearchBar onTokenSelect={handleTokenSelect} className="mb-4" />
+              <Button onClick={() => navigate("/sniper")} variant="outline" size="sm">
                 Go to Sniper Board
               </Button>
             </div>
@@ -223,6 +259,28 @@ const TradeTerminal = () => {
               animate={{ opacity: 1, y: 0 }}
               className="mb-4"
             >
+              {/* Search Bar Row */}
+              <div className="flex items-center gap-3 mb-4">
+                <TokenSearchBar onTokenSelect={handleTokenSelect} className="flex-1 max-w-md" />
+                
+                {/* Realtime Toggle */}
+                <div className="flex items-center gap-2 bg-secondary/30 rounded-lg px-3 py-2">
+                  <Radio className={`h-4 w-4 ${isConnected ? 'text-success animate-pulse' : 'text-muted-foreground'}`} />
+                  <span className="text-xs font-mono text-muted-foreground hidden sm:inline">LIVE</span>
+                  <Switch
+                    checked={realtimeEnabled}
+                    onCheckedChange={setRealtimeEnabled}
+                    className="scale-75"
+                  />
+                </div>
+                
+                {lastUpdate && (
+                  <span className="text-xs text-muted-foreground font-mono hidden md:inline">
+                    Updated: {lastUpdate.toLocaleTimeString()}
+                  </span>
+                )}
+              </div>
+              
               <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                 <div className="flex items-center gap-4">
                   <div className="h-12 w-12 rounded-lg bg-gradient-to-br from-primary to-primary/50 flex items-center justify-center">
@@ -260,7 +318,17 @@ const TradeTerminal = () => {
                     {loading && !dexToken ? (
                       <Skeleton className="h-8 w-24 mb-1" />
                     ) : (
-                      <p className={`text-3xl font-bold font-mono ${token.change24h >= 0 ? 'text-success' : 'text-destructive'}`}>
+                      <p 
+                        className={`text-3xl font-bold font-mono transition-all duration-300 ${
+                          priceFlash === 'up' 
+                            ? 'text-success scale-105' 
+                            : priceFlash === 'down' 
+                              ? 'text-destructive scale-105' 
+                              : token.change24h >= 0 
+                                ? 'text-success' 
+                                : 'text-destructive'
+                        }`}
+                      >
                         ${formatPrice(token.price)}
                       </p>
                     )}
