@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { 
   Zap, 
   TrendingUp, 
@@ -13,7 +13,10 @@ import {
   Layers,
   Flame,
   Rocket,
-  ChevronRight
+  ChevronRight,
+  FileText,
+  Shield,
+  Scale
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -50,7 +53,7 @@ const QuickBuyCard = () => {
             <Crosshair className="h-5 w-5 text-primary" />
           </div>
           <div>
-            <h3 className="font-semibold text-white">Quick Trade</h3>
+            <h3 className="font-semibold text-foreground">Quick Trade</h3>
             <p className="text-xs text-muted-foreground">Paste any contract</p>
           </div>
         </div>
@@ -60,7 +63,7 @@ const QuickBuyCard = () => {
             placeholder="0x... or So11..."
             value={address}
             onChange={(e) => setAddress(e.target.value)}
-            className="bg-white/[0.03] border-white/[0.08] focus:border-primary/50 font-mono text-sm"
+            className="bg-secondary/50 border-border focus:border-primary/50 font-mono text-sm"
             onKeyDown={(e) => e.key === "Enter" && handleQuickTrade()}
           />
           <Button 
@@ -102,7 +105,7 @@ const MetricCard = ({ title, value, change, icon: Icon, delay = 0 }: MetricCardP
           <Icon className="h-4 w-4 text-primary" />
         </div>
       </div>
-      <div className="text-2xl font-bold text-white font-mono">{value}</div>
+      <div className="text-2xl font-bold text-foreground font-mono">{value}</div>
       {change && (
         <div className="flex items-center gap-1 mt-1">
           <TrendingUp className="h-3 w-3 text-primary" />
@@ -147,10 +150,10 @@ const TokenRow = ({ token, index, variant = "trending" }: TokenRowProps) => {
       animate={{ opacity: 1, x: 0 }}
       transition={{ delay: index * 0.05 }}
       onClick={() => navigate(`/trade?token=${token.tokenAddress}&chain=${token.chainId}`)}
-      className="flex items-center gap-3 p-3 rounded-xl hover:bg-white/[0.03] cursor-pointer transition-all group"
+      className="flex items-center gap-3 p-3 rounded-xl hover:bg-secondary/50 cursor-pointer transition-all group"
     >
       {/* Rank/Icon */}
-      <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary/20 to-accent/10 flex items-center justify-center ring-1 ring-white/[0.08]">
+      <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary/20 to-accent/10 flex items-center justify-center ring-1 ring-border">
         {variant === "trending" ? (
           <span className="text-sm font-bold text-primary">#{index + 1}</span>
         ) : (
@@ -161,8 +164,8 @@ const TokenRow = ({ token, index, variant = "trending" }: TokenRowProps) => {
       {/* Token Info */}
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2">
-          <span className="font-semibold text-white text-sm truncate">{token.symbol}</span>
-          <Badge variant="outline" className="text-[9px] px-1.5 py-0 border-white/[0.1] text-muted-foreground">
+          <span className="font-semibold text-foreground text-sm truncate">{token.symbol}</span>
+          <Badge variant="outline" className="text-[9px] px-1.5 py-0 border-border text-muted-foreground">
             {token.chain}
           </Badge>
         </div>
@@ -171,7 +174,7 @@ const TokenRow = ({ token, index, variant = "trending" }: TokenRowProps) => {
 
       {/* Price & Change */}
       <div className="text-right">
-        <div className="font-mono text-sm text-white">{formatPrice(token.priceUsd)}</div>
+        <div className="font-mono text-sm text-foreground">{formatPrice(token.priceUsd)}</div>
         {variant === "trending" ? (
           <div className={`text-xs font-mono ${isPositive ? "text-primary" : "text-destructive"}`}>
             {isPositive ? "+" : ""}{token.priceChange24h.toFixed(2)}%
@@ -216,13 +219,13 @@ const FloatingNavDock = () => {
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: i * 0.1 }}
             onClick={() => navigate(item.path)}
-            className="group relative w-12 h-12 rounded-xl flex items-center justify-center hover:bg-white/[0.05] transition-colors"
+            className="group relative w-12 h-12 rounded-xl flex items-center justify-center hover:bg-secondary/50 transition-colors"
           >
             <item.icon className="h-5 w-5 text-muted-foreground group-hover:text-primary transition-colors" />
             
             {/* Tooltip */}
-            <div className="absolute left-full ml-3 px-3 py-1.5 bg-card rounded-lg border border-white/[0.1] opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity whitespace-nowrap">
-              <span className="text-sm text-white">{item.label}</span>
+            <div className="absolute left-full ml-3 px-3 py-1.5 bg-card rounded-lg border border-border opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity whitespace-nowrap">
+              <span className="text-sm text-foreground">{item.label}</span>
             </div>
           </motion.button>
         ))}
@@ -282,7 +285,7 @@ const Index = () => {
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.1 }}
-              className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white leading-tight mb-4"
+              className="text-4xl sm:text-5xl lg:text-6xl font-bold text-foreground leading-tight mb-4"
             >
               Trade Faster.
               <br />
@@ -316,7 +319,7 @@ const Index = () => {
                 size="lg"
                 variant="outline"
                 onClick={() => navigate("/markets")}
-                className="border-white/[0.1] hover:bg-white/[0.05] rounded-full px-8"
+                className="border-border hover:bg-secondary/50 rounded-full px-8"
               >
                 View Markets
               </Button>
@@ -371,7 +374,7 @@ const Index = () => {
                 <div className="w-8 h-8 rounded-lg bg-orange-500/20 flex items-center justify-center">
                   <Flame className="h-4 w-4 text-orange-500" />
                 </div>
-                <h2 className="font-semibold text-white">Trending Now</h2>
+                <h2 className="font-semibold text-foreground">Trending Now</h2>
               </div>
               <Button 
                 variant="ghost" 
@@ -388,10 +391,10 @@ const Index = () => {
               {loading ? (
                 [...Array(5)].map((_, i) => (
                   <div key={i} className="flex items-center gap-3 p-3 animate-pulse">
-                    <div className="w-10 h-10 rounded-xl bg-white/[0.05]" />
+                    <div className="w-10 h-10 rounded-xl bg-secondary" />
                     <div className="flex-1">
-                      <div className="h-4 w-20 bg-white/[0.05] rounded mb-2" />
-                      <div className="h-3 w-32 bg-white/[0.05] rounded" />
+                      <div className="h-4 w-20 bg-secondary rounded mb-2" />
+                      <div className="h-3 w-32 bg-secondary rounded" />
                     </div>
                   </div>
                 ))
@@ -415,7 +418,7 @@ const Index = () => {
                 <div className="w-8 h-8 rounded-lg bg-primary/20 flex items-center justify-center">
                   <Rocket className="h-4 w-4 text-primary" />
                 </div>
-                <h2 className="font-semibold text-white">New Launches</h2>
+                <h2 className="font-semibold text-foreground">New Launches</h2>
               </div>
               <Badge variant="outline" className="border-primary/30 text-primary text-[10px]">
                 LIVE
@@ -426,10 +429,10 @@ const Index = () => {
               {loading ? (
                 [...Array(5)].map((_, i) => (
                   <div key={i} className="flex items-center gap-3 p-3 animate-pulse">
-                    <div className="w-10 h-10 rounded-xl bg-white/[0.05]" />
+                    <div className="w-10 h-10 rounded-xl bg-secondary" />
                     <div className="flex-1">
-                      <div className="h-4 w-16 bg-white/[0.05] rounded mb-2" />
-                      <div className="h-3 w-24 bg-white/[0.05] rounded" />
+                      <div className="h-4 w-16 bg-secondary rounded mb-2" />
+                      <div className="h-3 w-24 bg-secondary rounded" />
                     </div>
                   </div>
                 ))
@@ -455,10 +458,73 @@ const Index = () => {
         </motion.section>
 
         {/* Footer */}
-        <footer className="text-center py-8 border-t border-white/[0.05]">
-          <p className="text-sm text-muted-foreground">
-            © 2024 Arbah.co — Real-time crypto intelligence
-          </p>
+        <footer className="py-12 border-t border-border mt-8">
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-8 mb-8">
+            {/* Brand */}
+            <div>
+              <div className="flex items-center gap-2 mb-4">
+                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-primary/50 flex items-center justify-center">
+                  <span className="text-primary-foreground font-bold text-sm">A</span>
+                </div>
+                <span className="font-bold text-lg font-mono text-foreground">Arbah.co</span>
+              </div>
+              <p className="text-sm text-muted-foreground">
+                The fastest real-time crypto terminal for traders and investors.
+              </p>
+            </div>
+
+            {/* Product */}
+            <div>
+              <h4 className="font-semibold text-foreground mb-4">Product</h4>
+              <ul className="space-y-2">
+                <li><Link to="/dashboard" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Dashboard</Link></li>
+                <li><Link to="/trade" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Trade Terminal</Link></li>
+                <li><Link to="/markets" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Markets</Link></li>
+                <li><Link to="/market-sniper" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Sniper Board</Link></li>
+              </ul>
+            </div>
+
+            {/* Support */}
+            <div>
+              <h4 className="font-semibold text-foreground mb-4">Support</h4>
+              <ul className="space-y-2">
+                <li><Link to="/support" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Help Center</Link></li>
+                <li><a href="mailto:support@arbah.co" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Contact Us</a></li>
+              </ul>
+            </div>
+
+            {/* Legal */}
+            <div>
+              <h4 className="font-semibold text-foreground mb-4">Legal</h4>
+              <ul className="space-y-2">
+                <li>
+                  <Link to="/legal/terms" className="text-sm text-muted-foreground hover:text-foreground transition-colors flex items-center gap-2">
+                    <FileText className="h-3 w-3" />
+                    Terms of Service
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/legal/privacy" className="text-sm text-muted-foreground hover:text-foreground transition-colors flex items-center gap-2">
+                    <Shield className="h-3 w-3" />
+                    Privacy Policy
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/legal/refund" className="text-sm text-muted-foreground hover:text-foreground transition-colors flex items-center gap-2">
+                    <Scale className="h-3 w-3" />
+                    Refund Policy
+                  </Link>
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          {/* Copyright */}
+          <div className="pt-8 border-t border-border">
+            <p className="text-sm text-muted-foreground text-center">
+              © {new Date().getFullYear()} Arbah.co — Real-time crypto intelligence. All rights reserved.
+            </p>
+          </div>
         </footer>
       </div>
     </div>
