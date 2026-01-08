@@ -27,16 +27,23 @@ import {
   Bell,
   FileText,
   Scale,
+  Radio,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
+import { useMarket } from "@/contexts/MarketContext";
 import InstallAppButton from "@/components/mobile/InstallAppButton";
 import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 interface NavItem {
   title: string;
@@ -119,6 +126,7 @@ const DashboardSidebar = ({ collapsed, onToggle }: DashboardSidebarProps) => {
   const location = useLocation();
   const navigate = useNavigate();
   const { signOut } = useAuth();
+  const { isLive, loading } = useMarket();
   
   // Track open sections
   const [openSections, setOpenSections] = useState<Record<string, boolean>>(
@@ -299,6 +307,55 @@ const DashboardSidebar = ({ collapsed, onToggle }: DashboardSidebarProps) => {
           </Collapsible>
         ))}
       </nav>
+
+      {/* Live Status Indicator */}
+      <div className="px-3 pb-2">
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <div className={cn(
+              "flex items-center gap-2 p-2 rounded-lg transition-colors",
+              collapsed ? "justify-center" : "justify-start",
+              isLive ? "bg-success/10" : "bg-destructive/10"
+            )}>
+              <div className="relative">
+                <Radio className={cn(
+                  "h-4 w-4",
+                  isLive ? "text-success" : "text-destructive"
+                )} />
+                {!loading && (
+                  <span className={cn(
+                    "absolute -top-0.5 -right-0.5 h-2 w-2 rounded-full",
+                    isLive ? "bg-success animate-pulse" : "bg-destructive"
+                  )} />
+                )}
+              </div>
+              <AnimatePresence mode="wait">
+                {!collapsed && (
+                  <motion.div
+                    initial={{ opacity: 0, width: 0 }}
+                    animate={{ opacity: 1, width: "auto" }}
+                    exit={{ opacity: 0, width: 0 }}
+                    className="flex flex-col"
+                  >
+                    <span className={cn(
+                      "text-xs font-mono font-medium",
+                      isLive ? "text-success" : "text-destructive"
+                    )}>
+                      {loading ? "Connecting..." : isLive ? "LIVE" : "OFFLINE"}
+                    </span>
+                    <span className="text-[10px] text-muted-foreground">
+                      {isLive ? "API Connected" : "Using Cache"}
+                    </span>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+          </TooltipTrigger>
+          <TooltipContent side="right">
+            <p>{isLive ? "Connected to DexScreener API" : "Using offline/cached data"}</p>
+          </TooltipContent>
+        </Tooltip>
+      </div>
 
       {/* Install App Button (Mobile Only) */}
       <div className="px-3 pb-2">

@@ -41,7 +41,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
 import QuickTradeModal from "@/components/trade/QuickTradeModal";
-import { useDexScreener, DexScreenerPair } from "@/hooks/useDexScreener";
+import { useMarket, DexScreenerPair } from "@/contexts/MarketContext";
 
 const chainColors: Record<string, string> = {
   ETH: "bg-blue-500/20 text-blue-500 border-blue-500/30",
@@ -119,7 +119,8 @@ const TableSkeleton = () => (
 );
 
 const MarketSniper = () => {
-  const { pairs, loading, error, lastUpdated, usingMockData, refresh } = useDexScreener();
+  const { marketData: pairs, loading, error, lastUpdated, isLive, refresh } = useMarket();
+  const usingMockData = !isLive;
   const [quickTradeToken, setQuickTradeToken] = useState<DexScreenerPair | null>(null);
   const [chainFilter, setChainFilter] = useState<string>("all");
   const [minLiquidity, setMinLiquidity] = useState("");

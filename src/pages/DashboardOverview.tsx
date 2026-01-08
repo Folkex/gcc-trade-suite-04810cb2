@@ -4,6 +4,7 @@ import {
   Crosshair, 
   Wallet, 
   TrendingUp, 
+  TrendingDown,
   BarChart3, 
   Zap, 
   Shield, 
@@ -20,9 +21,12 @@ import {
   Clock,
   ChevronRight,
   Crown,
-  Star
+  Star,
+  Droplets,
+  Flame,
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
+import { useMarket } from "@/contexts/MarketContext";
 import { useNavigate } from "react-router-dom";
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
 import FeedbackButton from "@/components/feedback/FeedbackButton";
@@ -30,14 +34,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
+import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
-
-// Mini Token Feed Data
-const miniTokenFeed = [
-  { name: "PEPE2.0", chain: "ETH", age: "2m", liquidity: "$125K", score: 87, safe: true },
-  { name: "BONK2", chain: "SOL", age: "5m", liquidity: "$89K", score: 72, safe: true },
-  { name: "WOJAK", chain: "ETH", age: "8m", liquidity: "$45K", score: 65, safe: false },
-];
 
 // Recent Project Updates
 const recentProjects = [
@@ -46,10 +44,29 @@ const recentProjects = [
   { name: "Market Scanner", status: "paused", updated: "1d ago" },
 ];
 
+const formatLiquidity = (value: number) => {
+  if (value >= 1000000) return `$${(value / 1000000).toFixed(2)}M`;
+  if (value >= 1000) return `$${(value / 1000).toFixed(1)}K`;
+  return `$${value.toFixed(0)}`;
+};
+
+const getTimeAgo = (date: Date) => {
+  const mins = Math.floor((Date.now() - date.getTime()) / 60000);
+  if (mins < 60) return `${mins}m ago`;
+  const hours = Math.floor(mins / 60);
+  if (hours < 24) return `${hours}h ago`;
+  const days = Math.floor(hours / 24);
+  return `${days}d ago`;
+};
+
 const DashboardOverview = () => {
   const { user } = useAuth();
+  const { marketData, topGainer, isLive, loading: marketLoading } = useMarket();
   const navigate = useNavigate();
   const [currentTime, setCurrentTime] = useState(new Date());
+
+  // Get top 3 tokens for Market Pulse
+  const topTokens = marketData.slice(0, 3);
 
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 1000);
@@ -217,49 +234,74 @@ const DashboardOverview = () => {
               </CardHeader>
               
               <CardContent className="relative space-y-3">
-                {/* Mini Token Feed */}
+                {/* Mini Token Feed - Real Data */}
                 <div className="space-y-2">
-                  {miniTokenFeed.map((token, index) => (
-                    <motion.div
-                      key={token.name}
-                      initial={{ opacity: 0, x: -20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: 0.3 + index * 0.1 }}
-                      className="flex items-center justify-between p-3 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors border border-border/50"
-                    >
-                      <div className="flex items-center gap-3">
-                        <div className={cn(
-                          "w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold",
-                          token.chain === "ETH" ? "bg-blue-500/20 text-blue-400" : "bg-purple-500/20 text-purple-400"
-                        )}>
-                          {token.chain === "ETH" ? "Ξ" : "◎"}
+                  {marketLoading ? (
+                    // Loading skeleton
+                    [...Array(3)].map((_, index) => (
+                      <div key={index} className="flex items-center justify-between p-3 rounded-lg bg-muted/30 border border-border/50">
+                        <div className="flex items-center gap-3">
+                          <Skeleton className="w-8 h-8 rounded-full" />
+                          <div>
+                            <Skeleton className="h-4 w-20 mb-1" />
+                            <Skeleton className="h-3 w-12" />
+                          </div>
                         </div>
-                        <div>
-                          <p className="font-medium font-mono text-sm">{token.name}</p>
-                          <p className="text-xs text-muted-foreground">{token.age} ago</p>
+                        <div className="flex items-center gap-4">
+                          <Skeleton className="h-4 w-16" />
+                          <Skeleton className="h-6 w-12" />
                         </div>
                       </div>
-                      <div className="flex items-center gap-4">
-                        <div className="text-right">
-                          <p className="text-sm font-mono">{token.liquidity}</p>
-                          <p className="text-xs text-muted-foreground">Liquidity</p>
+                    ))
+                  ) : (
+                    topTokens.map((token, index) => (
+                      <motion.div
+                        key={token.id}
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: 0.3 + index * 0.1 }}
+                        className="flex items-center justify-between p-3 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors border border-border/50 cursor-pointer"
+                        onClick={() => navigate(`/trade?token=${token.tokenAddress}&chain=${token.chainId}`)}
+                      >
+                        <div className="flex items-center gap-3">
+                          {token.icon ? (
+                            <img 
+                              src={token.icon} 
+                              alt={token.symbol}
+                              className="w-8 h-8 rounded-full object-cover"
+                              onError={(e) => {
+                                (e.target as HTMLImageElement).style.display = 'none';
+                              }}
+                            />
+                          ) : (
+                            <div className={cn(
+                              "w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold",
+                              token.chain === "ETH" ? "bg-blue-500/20 text-blue-400" : "bg-purple-500/20 text-purple-400"
+                            )}>
+                              {token.chain === "ETH" ? "Ξ" : "◎"}
+                            </div>
+                          )}
+                          <div>
+                            <p className="font-medium font-mono text-sm">{token.symbol}</p>
+                            <p className="text-xs text-muted-foreground">{getTimeAgo(token.launchedAt)}</p>
+                          </div>
                         </div>
-                        <div className={cn(
-                          "px-2 py-1 rounded-md font-mono text-sm",
-                          token.score >= 80 ? "bg-green-500/20 text-green-400" :
-                          token.score >= 60 ? "bg-yellow-500/20 text-yellow-400" :
-                          "bg-red-500/20 text-red-400"
-                        )}>
-                          {token.score}
+                        <div className="flex items-center gap-4">
+                          <div className="text-right">
+                            <p className="text-sm font-mono">{formatLiquidity(token.liquidity)}</p>
+                            <p className="text-xs text-muted-foreground">Liquidity</p>
+                          </div>
+                          <div className={cn(
+                            "px-2 py-1 rounded-md font-mono text-sm flex items-center gap-1",
+                            token.priceChange24h >= 0 ? "bg-green-500/20 text-green-400" : "bg-red-500/20 text-red-400"
+                          )}>
+                            {token.priceChange24h >= 0 ? <TrendingUp className="h-3 w-3" /> : <TrendingDown className="h-3 w-3" />}
+                            {token.priceChange24h >= 0 ? "+" : ""}{token.priceChange24h.toFixed(1)}%
+                          </div>
                         </div>
-                        {token.safe ? (
-                          <Shield className="h-4 w-4 text-green-400" />
-                        ) : (
-                          <Shield className="h-4 w-4 text-red-400" />
-                        )}
-                      </div>
-                    </motion.div>
-                  ))}
+                      </motion.div>
+                    ))
+                  )}
                 </div>
 
                 <Button 

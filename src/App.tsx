@@ -4,7 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
-
+import { MarketProvider } from "@/contexts/MarketContext";
 // Landing & Auth
 import Index from "./pages/Index";
 import Login from "./pages/Login";
@@ -54,6 +54,7 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <AuthProvider>
+          <MarketProvider>
           <Toaster />
           <Sonner />
             <BrowserRouter>
@@ -99,7 +100,8 @@ function App() {
               {/* Catch-all */}
               <Route path="*" element={<NotFound />} />
             </Routes>
-          </BrowserRouter>
+            </BrowserRouter>
+          </MarketProvider>
         </AuthProvider>
       </TooltipProvider>
     </QueryClientProvider>
