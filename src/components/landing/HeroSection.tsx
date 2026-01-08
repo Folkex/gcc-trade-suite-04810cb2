@@ -188,7 +188,7 @@ const HeroSection = ({ lang }: HeroSectionProps) => {
                 </div>
                 <div className="flex-1 flex justify-center">
                   <div className="px-4 py-1 rounded-md bg-background/50 text-xs text-muted-foreground font-mono">
-                    tradeflow.app/dashboard
+                    arbah.co/dashboard
                   </div>
                 </div>
               </div>
