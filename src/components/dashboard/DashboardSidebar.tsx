@@ -190,18 +190,14 @@ const DashboardSidebar = ({ collapsed, onToggle }: DashboardSidebarProps) => {
               exit={{ opacity: 0 }}
               className="flex items-center gap-2"
             >
-              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-primary/50 flex items-center justify-center">
-                <span className="text-primary-foreground font-bold text-sm">A</span>
-              </div>
+              <img src="/logo.png" alt="Arbah.co" className="w-8 h-8 rounded-lg" />
               <span className="font-bold text-lg font-mono text-foreground">Arbah.co</span>
             </motion.div>
           )}
         </AnimatePresence>
         
         {collapsed && (
-          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-primary/50 flex items-center justify-center mx-auto">
-            <span className="text-primary-foreground font-bold text-sm">A</span>
-          </div>
+          <img src="/logo.png" alt="Arbah.co" className="w-8 h-8 rounded-lg mx-auto" />
         )}
       </div>
 

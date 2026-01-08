@@ -69,9 +69,7 @@ const Footer = ({ lang }: FooterProps) => {
           {/* Brand */}
           <div className="lg:col-span-2">
             <div className="flex items-center gap-2 mb-4">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-accent flex items-center justify-center shadow-lg shadow-primary/20">
-                <span className="text-primary-foreground font-bold text-lg">A</span>
-              </div>
+              <img src="/logo.png" alt="Arbah.co" className="w-10 h-10 rounded-xl shadow-lg shadow-primary/20" />
               <span className="font-display font-bold text-xl">Arbah.co</span>
             </div>
             <p className="text-muted-foreground max-w-sm mb-6">{t.description}</p>

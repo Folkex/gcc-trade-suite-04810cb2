@@ -22,9 +22,7 @@ const DashboardHeader = ({ onSignOut }: DashboardHeaderProps) => {
     <header className="sticky top-0 z-50 border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container mx-auto px-4 h-16 flex items-center justify-between">
         <Link to="/" className="flex items-center gap-2">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-accent flex items-center justify-center">
-            <span className="text-primary-foreground font-bold text-lg">A</span>
-          </div>
+          <img src="/logo.png" alt="Arbah.co" className="w-10 h-10 rounded-xl" />
           <span className="font-display font-bold text-xl">Arbah.co</span>
         </Link>
 
